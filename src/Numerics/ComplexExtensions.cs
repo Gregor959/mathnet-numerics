@@ -33,7 +33,7 @@ namespace MathNet.Numerics
     using System;
     using System.Collections.Generic;
     using System.Numerics;
-
+    using System.Collections;
     /// <summary>
     /// Extension methods 
     /// </summary>
@@ -654,5 +654,54 @@ namespace MathNet.Numerics
         {
             return Complex32.TryParse(value, formatProvider, out result);
         }
-    }
+    
+
+
+        public static int CompareTo(this  Complex a, Complex b)
+        {
+            int answ = a.Magnitude.CompareTo(b.Magnitude);
+            if (answ != 0)
+            {
+                return answ;
+            }
+            return a.Phase.CompareTo(b.Phase);
+        }
+
+        //public static Comparer<Complex> Default
+        //{ get {return new ComplexComparer();}
+        //}
+
+        
+ }
+
+    //For Complex could not use extension methods to implement the interface method ICompare, so using
+    //this class instead where it is required.
+    //Compare can be used to sort Complex values first on magnitude and then on the phase.
+    public class ComplexComparer:  Comparer<Complex>, IComparer<Complex>, IComparer 
+    {
+        
+        public override  int Compare(Complex a, Complex b)
+        {
+            int answ = a.MagnitudeSquared().CompareTo(b.MagnitudeSquared());
+            if (answ != 0)
+            {
+                return answ;
+            }
+            return a.Phase.CompareTo(b.Phase);
+        }
+
+
+        public  int Compare(object a, object b)
+        {
+
+            int answ = ((Complex)a).MagnitudeSquared().CompareTo(((Complex)b).MagnitudeSquared());
+            if (answ != 0)
+            {
+                return answ;
+            }
+            return ((Complex)a).Phase.CompareTo(((Complex)b).Phase);
+        }
+
+    } 
 }
+

@@ -28,6 +28,8 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
 {
     using System;
     using System.Numerics;
+    using System.Linq;
+    using System.Collections.Generic;
     using Distributions;
     using Generic;
     using Properties;
@@ -402,5 +404,83 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
                 }
             }
         }
+
+        /// <summary>
+        /// Sort the columns of the matrix by a specific row and also returns the Permutation , 
+        /// which can be used to arrange the columns of other matrices in the same order.
+        /// E.g Sorting Matrix myMatrix on Row index 2: 
+        /// myPermuation = myMatrix.SortByRow(2); 
+        /// Would use 
+        /// otherMatrix.PermuteColumns(myPermuation); to sort otherMatrix in the same order. 
+        /// To get the Sorting order as the Matlab, Octave sort method [a,ind] = Sort(myVector),
+        /// the vector 'ind's entries are equivalent to the entries of the IEnumerable : myPermutation.Inverse().Elements(),
+        /// but using  0 based indices instead of 1 based indexes as in Matlab/ Octave.
+        /// </summary>
+        /// <param name="rowIndex">The row to sort the matrix by.</param>
+        /// <returns>The permutation</returns>
+        /// <exception cref="ArgumentOutOfRangeException">If <paramref name="rowIndex"/> is negative,
+        /// or greater than or equal to the number of rows.</exception>
+        public override Permutation SortByRow(int rowIndex)
+        {
+            if (rowIndex < 0 || rowIndex >= RowCount)
+            {
+                throw new ArgumentOutOfRangeException("rowIndex");
+            }
+
+
+            Vector<Complex> rowVector = this.Row(rowIndex);
+            int[] items = new int[ColumnCount];
+            for (int i = 0; i < items.Length; i++)
+            {
+                items[i] = i;
+            }
+
+
+            Sorting.Sort(rowVector.ToList(), items, new ComplexComparer());
+            Permutation sortPerm = new Permutation(items).Inverse(); // need to get inverse of sorting indices.
+            this.PermuteColumns(sortPerm);
+            return sortPerm;
+        }
+
+        /// <summary>
+        /// Sort the rows of the matrix by a specific column and also returns the Permutation , 
+        /// which can be used to arrange the Rows of other matrices in the same order.
+        /// E.g Sorting Matrix myMatrix on Row index 2: 
+        /// myPermuation = myMatrix.SortByRow(2); 
+        /// Would use 
+        /// otherMatrix.PermuteColumns(myPermuation); to sort otherMatrix in the same order. 
+        /// To get the Sorting order as the Matlab, Octave sort method [a,ind] = Sort(myVector),
+        /// the vector 'ind's entries are equivalent to the entries of the IEnumerable : myPermutation.Inverse().Elements()
+        /// , but using  0 based indices instead of 1 based indexes as in Matlab/ Octave.
+        /// </summary>
+        /// <param name="columnIndex">The column to sort the matrix by. </param>
+        /// <returns>The resultant permutation.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">If <paramref name="columnIndex"/> is negative,
+        /// or greater than or equal to the number of columns.</exception>
+        public override Permutation SortByColumn(int columnIndex)
+        {
+
+            if (columnIndex < 0 || columnIndex >= ColumnCount)
+            {
+                throw new ArgumentOutOfRangeException("column");
+            }
+
+            Vector<Complex> ColVector = this.Column(columnIndex);
+            int[] items = new int[RowCount];
+            for (int i = 0; i < items.Length; i++)
+            {
+                items[i] = i;
+            }
+
+            Sorting.Sort(ColVector.ToList(), items,new ComplexComparer());
+            Permutation sortPerm = new Permutation(items).Inverse(); // need to get inverse of Sorting.
+
+            this.PermuteRows(sortPerm);
+            return sortPerm;
+        }
+
+
+
+    
     }
 }

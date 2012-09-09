@@ -782,5 +782,171 @@ namespace MathNet.Numerics.LinearAlgebra.Double
 
             return (DenseMatrix)leftSide.Modulus(rightSide);
         }
+
+
+
+        /// <summary>
+        /// Tests  all the elements of a matrix for a conditon and returns a Matrix of 1.0 where this conditions is true.  
+        /// The condition is given using System.Predicate;
+        /// </summary>
+        /// <param name="matchCondition">System.Predicate. The condition that the matrix elemets are tested for.</param>
+        /// <returns> The resultant Matrix.</returns>
+        /// <exception cref="ArgumentNullException">If matchCondition is <see langword="null" />.</exception>
+        public override Matrix<double> FindMask(Predicate<double> matchCondition)
+        {
+            if (matchCondition == null) throw new ArgumentNullException("matchCondition");
+
+            DenseMatrix outMatrix = new DenseMatrix(RowCount, ColumnCount);
+            int i = 0;
+            for (var column = 0; column < ColumnCount; column++) //column major storage so data is stored column by column going down each column one element/row at a time
+            {
+                for (var row = 0; row < RowCount; row++)
+                {
+                    if (matchCondition(Data[i]))
+                    {
+                        outMatrix.Data[i] = 1.0;
+                    }
+                    i++;
+                }
+            }
+
+            return outMatrix;
+        }
+
+        /// <summary>
+        /// Creates a new Matrix with Column columnIndex removed
+        /// </summary>
+        /// <param name="columnIndex"></param>
+        /// <returns>The resultant Matrix with the column removed</returns>
+        public override Matrix<double> RemoveColumn(int columnIndex)
+        {
+            if (columnIndex < 0 || columnIndex >= ColumnCount)
+            {
+                throw new ArgumentOutOfRangeException("columnIndex");
+            }
+
+            if (ColumnCount <= 1)
+            {
+                throw new ArgumentException("Cannot remove last Column");
+            }
+            DenseMatrix outMatrix = new DenseMatrix(RowCount, ColumnCount - 1);
+            int targetIndex = 0; int sourceIndex = 0;
+            for (var column = 0; column < ColumnCount; column++) //column major storage so data is stored column by column one row at a time
+            {
+                for (var row = 0; row < RowCount; row++)
+                {
+                    if (column != columnIndex)
+                    {
+                        outMatrix.Data[targetIndex] = Data[sourceIndex];
+                        targetIndex++;
+                    }//else skip assignment. But always increment the sourceIndex 
+                    sourceIndex++;
+                }
+            }
+            return outMatrix;
+        }
+
+
+
+        /// <summary>
+        /// Creates a new Matrix with Row rowIndex removed
+        /// </summary>
+        /// <param name="columnIndex"></param>
+        /// <returns>The resultant Matrix with the Row removed</returns>
+        public override Matrix<double> RemoveRow(int rowIndex)
+        {
+            if (rowIndex < 0 || rowIndex >= RowCount)
+            {
+                throw new ArgumentOutOfRangeException("columnIndex");
+            }
+
+            if (RowCount <= 1)
+            {
+                throw new ArgumentException("Cannot return a matrix with last row removed.");
+            }
+            DenseMatrix outMatrix = new DenseMatrix(RowCount - 1, ColumnCount);
+            int targetIndex = 0; int sourceIndex = 0;
+            for (var column = 0; column < ColumnCount; column++) //column major storage so data is stored column by column one row at a time
+            {
+                for (var row = 0; row < RowCount; row++)
+                {
+                    if (row != rowIndex)
+                    {
+                        outMatrix.Data[targetIndex] = Data[sourceIndex];
+                        targetIndex++;
+                    }//else skip assignment. But always increment the sourceIndex 
+                    sourceIndex++;
+                }
+            }
+            return outMatrix;
+        }
+
+
+
+
+        /// <summary>
+        /// Creates a new Matrix with Row and Column of Index removed
+        /// </summary>
+        /// <param name="index">The index of the row and column to remove</param>
+        /// <returns>The resultant Matrix with the row and column removed</returns>
+        /// <exception cref="ArgumentOutOfRangeException">If <paramref name="index"/> greater then the matrix rows or columns.</exception>
+        public override Matrix<Double> RemoveRowAndColumn(int index)
+        {
+            if (index < 0)
+            {
+                throw new ArgumentOutOfRangeException("index");
+            }
+
+            if (index >= ColumnCount)
+            {
+                throw new ArgumentOutOfRangeException("index");
+            }
+
+            if (index >= RowCount)
+            {
+                throw new ArgumentOutOfRangeException("index");
+            }
+            DenseMatrix outMatrix = new DenseMatrix(RowCount - 1, ColumnCount - 1);
+            int targetIndex = 0; int sourceIndex = 0;
+            for (var column = 0; column < ColumnCount; column++) //column major storage so data is stored column by column one row at a time
+            {
+                for (var row = 0; row < RowCount; row++)
+                {
+                    if (row != index && column != index)
+                    {
+                        outMatrix.Data[targetIndex] = Data[sourceIndex];
+                        targetIndex++;
+                    }//else skip assignment. But always increment the sourceIndex 
+                    sourceIndex++;
+                }
+            }
+            return outMatrix;
+        }
+
+
+        /// <summary>
+        /// Creates a DenseMatrix filled with Zeros. 
+        /// </summary>
+        /// <param name="Rows"></param>
+        /// <param name="Columns"></param>
+        /// <returns>The Matrix filled with 0.0</returns>
+        public static Matrix Zeros(int Rows, int Columns)
+        {
+            return new DenseMatrix(Rows, Columns);
+        }
+
+        /// <summary>
+        /// Creates a DenseMatrix of Ones filled with Ones 
+        /// </summary>
+        /// <param name="Rows"></param>
+        /// <param name="Columns"></param>
+        /// <returns>The Matrix filled with 1.0</returns>
+        public static Matrix Ones(int Rows, int Columns)
+        {
+            return new DenseMatrix(Rows, Columns, 1.0);
+        }
+
+
+    
     }
 }

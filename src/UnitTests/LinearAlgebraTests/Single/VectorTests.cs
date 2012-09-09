@@ -509,6 +509,197 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Single
         }
 
         /// <summary>
+        /// Test if find the correct mask of elements > testvalue
+        /// </summary>
+        [Test]
+        public void CanFindMask()
+        {
+            var vector = CreateVector(Data);
+            var testValue = 2.0f;
+            var maskvector = vector.FindMask(a => a > testValue);
+
+            foreach(var indx in vector.GetIndexedEnumerator())
+            {
+                if (indx.Item2 > testValue)
+                Assert.AreEqual(1.0f, maskvector.At(indx.Item1));
+                else
+                Assert.AreEqual(0.0f, maskvector.At(indx.Item1));
+            }
+        }
+
+
+        /// <summary>
+        /// Test if find the correct indeces of elements > testvalue
+        /// </summary>
+        [Test]
+        public void CanFindIndices()
+        {
+            var vector = CreateVector(Data);
+            var testValue = 2.0f;
+            var indEnum = vector.FindIndices(a => a > testValue);
+
+            foreach (var indx in vector.GetIndexedEnumerator())
+            {
+                if (indx.Item2 > testValue)
+                 //then it should also be found in the indEnum 
+                {
+                    int found = 0;
+                    foreach (int index in indEnum)
+                    {
+                        if (index == indx.Item1) found = 1;
+                    }
+                    Assert.AreEqual(found,1);
+               }
+              
+                else
+                //it should not  be in indEnum 
+                {
+                    foreach (int index in indEnum)
+                    {
+                        Assert.AreNotEqual(index, indx.Item1);
+                    }
+                }
+           }
+        }
+
+
+        /// <summary>
+        /// Test if can set on indeces of elements.
+        /// </summary>
+        [Test]
+        public void CanSetOnIndices()
+        {
+            var vector = CreateVector(Data);
+            var testValue = 2.0f;
+            var indEnum = vector.FindIndices(a => a > testValue);
+
+            //make sure at lesat one is found.
+            int found = 0;
+            foreach (int index in indEnum)
+            {
+                found = 1;
+            }
+            Assert.AreEqual(found, 1);
+        
+            vector.SetOnIndeces(indEnum,testValue);
+            
+            
+            //make sure none are found now.
+            var indEnum2 = vector.FindIndices(a => a > testValue);
+            int foundAfter = 0;
+            foreach (int index in indEnum2)
+            {
+               found = 1;
+            }
+            Assert.AreEqual(foundAfter, 0);
+        }
+
+
+
+        /// <summary>
+        /// Test if can apply  a formual on indeces of elements.
+        /// </summary>
+        [Test]
+        public void CanApplyOnIndices()
+        {
+            var vector = CreateVector(Data);
+            var testValue = 2.0f;
+            var indEnum = vector.FindIndices(a => a > testValue);
+
+            //make sure at lesat one is found.
+            int found = 0;
+            foreach (int index in indEnum)
+            {
+                found = 1;
+            }
+            Assert.AreEqual(found, 1);
+
+            Func<float,float> multiplywithMinus1= a => -a;
+            
+            vector.ApplyOnIndeces(indEnum, multiplywithMinus1);
+
+
+            //make sure none are found now.
+            var indEnum2 = vector.FindIndices(a => a > testValue);
+            int foundAfter = 0;
+            foreach (int index in indEnum2)
+            {
+                found = 1;
+            }
+            Assert.AreEqual(foundAfter, 0);
+        }
+
+
+        /// <summary>
+        /// Test if can set subvector.
+        /// </summary>
+        [Test]
+        public void CanSetSubVector()
+        {
+            var vector = CreateVector(Data); // 1,2,3,4,5
+            float[] testData = { 20, 30};
+            float[] expectedResult = { 1,20,30, 4 ,5};
+            var expectedVector=CreateVector(expectedResult);
+
+            var subvector = CreateVector(testData);
+            vector.SetSubVector(1, 2, subvector);  //uses 0 based indexing so 1 is the the 2nd element.
+            // 1,2,3,4,5 => 1,20,30,4,5
+           foreach( int i in vector.Indices())
+           {
+               Assert.AreEqual(vector.At(i), expectedVector.At(i));
+           }
+        }
+
+        
+        /// <summary>
+        /// Test if can can set on a maskvector.
+        /// </summary>
+        [Test]
+        public void CanOnMaskSet()
+        {
+            var vector = CreateVector(Data);
+            float[] testMask = { 0,0,1,1,0};
+            float testValue = 30f;
+
+            float[] expectedResult = { 1, 2, 30, 30, 5 };
+            var expectedVector = CreateVector(expectedResult);
+
+            var maskVector = CreateVector(testMask);
+            
+            vector.OnMaskSet(maskVector,testValue);
+            // 1,2,3,4,5 => 1,2,30,30,5
+            foreach (int i in vector.Indices())
+            {
+                Assert.AreEqual(vector.At(i), expectedVector.At(i));
+            }
+        }
+
+
+        /// <summary>
+        /// Test if can can apply a formula on a maskvector.
+        /// </summary>
+        [Test]
+        public void CanOnMaskApply()
+        {
+            var vector = CreateVector(Data);
+            float[] testMask = { 0, 0, 1, 1, 0 };
+            Func<float,float> testFormula =   elem => elem*elem;
+
+            float[] expectedResult = { 1, 2, 9, 16, 5 };
+            var expectedVector = CreateVector(expectedResult);
+
+            var maskVector = CreateVector(testMask);
+
+            vector.OnMaskApply(maskVector, testFormula);
+            // 1,2,3,4,5 => 1,2,30,30,5
+            foreach (int i in vector.Indices())
+            {
+                Assert.AreEqual(vector.At(i), expectedVector.At(i));
+            }
+        }
+
+
+        /// <summary>
         /// Creates a new instance of the Vector class.
         /// </summary>
         /// <param name="size">The size of the <strong>Vector</strong> to construct.</param>

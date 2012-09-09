@@ -31,6 +31,8 @@ namespace MathNet.Numerics.LinearAlgebra.Single
     using Generic;
     using Properties;
     using Storage;
+    using System.Collections.Generic;
+    using Numerics.Random;
 
     /// <summary>
     /// A matrix type for diagonal matrices. 
@@ -1205,5 +1207,191 @@ namespace MathNet.Numerics.LinearAlgebra.Single
         }
 
         #endregion
+
+
+        /// <summary>
+        /// Sort the columns of the matrix by a specific row  (rowIndex) and also returns the Permuation , which can be used to arrange the Columns of other matrices in the same order as the Permutation.
+        /// Would use otherMatrix.PermuteColumns(permutation) for this. 
+        /// </summary>
+        /// <param name="rowIndex">The row to sort the matrix by.</param>
+        /// <returns>The permutation</returns>
+        /// <exception cref="ArgumentOutOfRangeException">If <paramref name="rowIndex"/> is negative,
+        /// or greater than or equal to the number of rows.</exception>
+        public override Permutation SortByRow(int rowIndex)
+        {
+            throw new InvalidOperationException("Sort a diagonal matrix by rows is not allowed");
+        }
+
+        /// <summary>
+        /// Sort the rows of the matrix by a specific column (columnIndex) and also returns the Permuation , which can be used to arrange the Rows of other matrices in the same order as the Permutation.
+        /// Would use otherMatrix.PermuteRows(permutation) for this.
+        /// </summary>
+        /// <param name="columnIndex">The column to sort the matrix by. </param>
+        /// <returns>The resultant permutation.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">If <paramref name="columnIndex"/> is negative,
+        /// or greater than or equal to the number of columns.</exception>
+        public override Permutation SortByColumn(int columnIndex)
+        {
+            throw new InvalidOperationException("Sort a diagonal matrix by columns is not allowed");
+        }
+
+
+
+        /// <summary>
+        ///  Shuffle the columns of a Matrix into a random Order. Not allowed for Diagonal Matrices.
+        /// </summary>
+        /// <returns>The Permutation of the columns relative to the previous order.</returns>
+        public override Permutation ShuffleColumns()
+        {
+            throw new InvalidOperationException("Shuffling Columns in diagonal matrix are not allowed");
+        }
+
+        /// <summary>
+        ///  Shuffle the columns of a Matrix into a random Order. Not allowed for Diagonal Matrices.
+        /// </summary>
+        /// <param name="rnd">An AbstractRandomNumberGenerator that is used to generate the random numbers used in the shuffling process.</param>
+        /// <returns>The Permutation of the columns relative to the previous order.</returns>
+        public override Permutation ShuffleColumns(AbstractRandomNumberGenerator rnd)
+        {
+            throw new InvalidOperationException("Shuffling Columns in diagonal matrix are not allowed");
+        }
+
+        /// <summary>
+        /// Shuffles the Rows of a Matrix in a random Order .Not allowed for Diagonal Matrices.
+        /// </summary>
+        /// <returns>The Permutation of the rows relative to the previous order.</returns>
+        public override Permutation ShuffleRows()
+        {
+            throw new InvalidOperationException("Shuffling Rows in diagonal matrix are not allowed");
+        }
+
+        /// <summary>
+        /// Shuffles the Rows of a Matrix in a random Order. Not allowed for Diagonal Matrices.
+        /// </summary>
+        /// <param name="rnd">An AbstractRandomNumberGenerator that is used to generate the random numbers used in the shuffling process.</param>
+        /// <returns>The Permutation of the rows relative to the previous order.</returns>
+        public override Permutation ShuffleRows(AbstractRandomNumberGenerator rnd)
+        {
+            throw new InvalidOperationException("Shuffling Rows in diagonal matrix are not allowed");
+        }
+
+
+
+        /// <summary>
+        /// Removes the Row of a Matrix.
+        /// </summary>
+        /// <param name="p">The row to removed.</param>
+        /// <exception cref="InvalidOperationException">Always thrown</exception>
+        /// <remarks>Removing only a Row in a diagonal matrix are senseless, because of matrix nature</remarks>
+        public override Matrix<float> RemoveRow(int rowIndex)
+        {
+            throw new InvalidOperationException("Removing a row in a diagonal matrix is not allowed. use RemoveRowAndColumn");
+        }
+
+
+        /// <summary>
+        /// Removes the Column of a Matrix.
+        /// </summary>
+        /// <param name="p">The row to removed.</param>
+        /// <exception cref="InvalidOperationException">Always thrown</exception>
+        /// <remarks>Removing only a Row in a diagonal matrix are senseless, because of matrix nature</remarks>
+        public override Matrix<float> RemoveColumn(int columnIndex)
+        {
+            throw new InvalidOperationException("Removing a Column in a diagonal matrix is not allowed. use RemoveRowAndColumn");
+        }
+
+        /// <summary>
+        /// Creates a new Matrix with Row and Column of Index removed
+        /// </summary>
+        /// <param name="index">The index of the row and column to remove</param>
+        /// <returns>The resultant Matrix with the row and column removed</returns>
+        /// <exception cref="ArgumentOutOfRangeException">If <paramref name="index"/> greater then the matrix rows.</exception>
+        public override Matrix<float> RemoveRowAndColumn(int index)
+        {
+            if (index < 0)
+            {
+                throw new ArgumentOutOfRangeException("index");
+            }
+
+
+            if (index >= RowCount)
+            {
+                throw new ArgumentOutOfRangeException("index");
+            }
+            DiagonalMatrix outMatrix = new DiagonalMatrix(RowCount - 1);
+            int targetIndex = 0; int sourceIndex = 0;
+            for (var row = 0; row < RowCount; row++)
+            {
+                if (row != index)
+                {
+                    outMatrix._data[targetIndex] = _data[sourceIndex];
+                    targetIndex++;
+                }//else skip assignment. But always increment the sourceIndex 
+                sourceIndex++;
+            }
+
+            return outMatrix;
+        }
+
+
+        /// <summary>
+        /// Tests  all the elements of a matrix for a conditon and returns a Matrix with elemets 1.0f where this conditions is true.  
+        /// Rest are 0.0 . The condition is given using System.Predicate;
+        /// </summary>
+        /// <param name="matchCondition">System.Predicate. The condition that the matrix elemets are tested for.</param>
+        /// <returns> The resultant Matrix.</returns>
+        /// <exception cref="ArgumentNullException">If matchCondition is <see langword="null" />.</exception>
+        public override Matrix<float> FindMask(Predicate<float> matchCondition)
+        {
+            if (matchCondition == null) throw new ArgumentNullException("matchCondition");
+
+            float[] outarr = new float[RowCount];
+            int i = 0;
+            for (var row = 0; row < RowCount; row++)
+            {
+                if (matchCondition(_data[i]))
+                {
+                    outarr[i] = 1.0f;
+                }
+                i++;
+
+            }
+
+            Matrix<float> outMatrix = new DiagonalMatrix(RowCount, ColumnCount, outarr);
+            return outMatrix;
+        }
+
+        /// <summary>
+        /// Tests  all the elements of a matrix for a conditon and returns and <see cref="IEnumerable{Tuple{int,int}}"/> of a Tuple{int,int} 
+        /// of the indeces where this conditions is true.  
+        /// The condition is given using System.Predicate.
+        /// For example to find all elemets >1.0 :    
+        ///    var myFoundIndeces=myMatrix.FindIndices(a => a > 1.0f);
+        ///    foreach( var currentTuple in myFoundIndeces)
+        ///    {
+        ///        Console.WriteLine("Found Indeces: rows{0}, columns{1}",currentTuple.Item1, currentTuple.Item2);
+        //     }
+        /// </summary>
+        /// <param name="matchCondition">System.Predicate. The condition that the matrix elemets are tested for.</param>
+        /// <returns> The request <see cref="IEnumerable{Tuple{int,int}}"/> of the row and column indexes respectivly.</returns>
+        /// <exception cref="ArgumentNullException">If matchCondition is <see langword="null" />.</exception>
+        public override IEnumerable<Tuple<int, int>> FindIndices(Predicate<float> matchCondition)
+        {
+            if (matchCondition == null) throw new ArgumentNullException("matchCondition");
+
+            for (var row = 0; row < RowCount; row++)
+            {
+                if (matchCondition(this._data[row]))
+                {
+                    yield return new Tuple<int, int>(row, row);
+                }
+            }
+            yield break;
+        }
+
+
+      
+
+
     }
 }

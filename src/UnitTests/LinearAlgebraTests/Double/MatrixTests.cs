@@ -27,7 +27,7 @@
 namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Double
 {
     using NUnit.Framework;
-
+    using System;
     /// <summary>
     /// Abstract class with the common set of matrix tests
     /// </summary>
@@ -134,5 +134,501 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Double
             matrix = TestMatrices["Square3x3"];
             Assert.IsFalse(matrix.IsSymmetric);
         }
+
+
+        /// <summary>
+        /// Tests where we can shuffle the columns of a matrix.
+        /// </summary>
+        /// <param name="name"></param>
+        //Test will not work  on certain singular matrices because some Columns are possible the same.
+        [TestCase("Square3x3")]
+        [TestCase("Wide2x3")]
+        public virtual void CanShuffleMatrixOnColumns(string name)
+        {
+            var testMatrix = CreateMatrix(TestData2D[name]);// TestMatrices[name];
+            var orignalMatrix = testMatrix.Clone();
+            var shuffledMatrix = testMatrix.Clone();
+            Permutation aColPerm = null;
+            bool wasChanged = false;
+            int count = 0;
+
+            //try to Shuffle the matrix up to 100 times by the columms, at least once should be a random Permutation and not just 0,1,2
+            while (wasChanged == false && count <= 100)
+            {
+                shuffledMatrix = testMatrix.Clone();
+                wasChanged = false;
+
+                // Shuffle testMatrix and create a random Permutation of the Columns.
+                aColPerm = shuffledMatrix.ShuffleColumns();
+                count++;
+                //test if the Permutation is the not simple permutation 0,1,2 
+                for (int i = 0; i < aColPerm.Dimension; i++)
+                {
+                    if (aColPerm[i] != i)
+                        wasChanged = true;
+                }
+            }
+
+            //if fails means 100 attempts failed to shuffle columns in an order other than 0,1,2..something is probably wrong!
+            Assert.AreEqual(wasChanged, true);
+
+            //should be diffrent now that testmatrix is shuffled...will not be true on all matrices.
+            Assert.AreNotEqual(orignalMatrix, shuffledMatrix);
+
+            //check the Permuation given by the random Shuffle can be used on another matrix of same number of columns 
+            orignalMatrix.PermuteColumns(aColPerm);
+            // and orders it the same way as testmatrix
+            Assert.AreEqual(orignalMatrix, shuffledMatrix);
+        }
+
+
+        //Test will not work on certain singular because two or more Rows are possible the same.
+        /// <summary>
+        /// Tests where we can shuffle the rows of a matrix.
+        /// </summary>
+        /// <param name="name"></param>
+        [TestCase("Square3x3")]
+        [TestCase("Wide2x3")]
+        public virtual void CanShuffleMatrixOnRows(string name)
+        {
+            var testMatrix = CreateMatrix(TestData2D[name]);// TestMatrices[name];
+            var orignalMatrix = testMatrix.Clone();
+            var shuffledMatrix = testMatrix.Clone();
+            Permutation aRowPerm = null;
+            bool wasChanged = false;
+            int count = 0;
+
+            //try to Shuffle the matrix up to 100 times by the columms, at least once should be a random Permutation and not just 0,1,2
+            while (wasChanged == false && count <= 100)
+            {
+                shuffledMatrix = testMatrix.Clone();
+                wasChanged = false;
+
+                // Shuffle testMatrix and create a random Permutation of the Rows.
+                aRowPerm = shuffledMatrix.ShuffleRows();
+                count++;
+                //test if the Permutation is the not simple permutation 0,1,2 
+                for (int i = 0; i < aRowPerm.Dimension; i++)
+                {
+                    if (aRowPerm[i] != i)
+                        wasChanged = true;
+                }
+            }
+
+            //if fails means 100 attempts failed to shuffle columns in an order other than 0,1,2..something is probably wrong!
+            Assert.AreEqual(wasChanged, true);
+
+            //should be diffrent now that testmatrix is shuffled. This will not work on all Matrices.
+            Assert.AreNotEqual(orignalMatrix, shuffledMatrix);
+
+            //check the Permuation given by the random Shuffle can be used on another matrix of same number of columns 
+            orignalMatrix.PermuteRows(aRowPerm);
+            // and orders it the same way as testmatrix
+            Assert.AreEqual(orignalMatrix, shuffledMatrix);
+        }
+
+
+
+        /// <summary>
+        /// Test whether we can sort a matrix by a specific column. So sort each row of the matrix by a specific column in ascending order.
+        /// </summary>
+        [TestCase("Singular3x3")]
+        [TestCase("Square3x3")]
+        [TestCase("Wide2x3")]
+        public virtual void CanSortMatrixOnColumns(string name)
+        {
+            var testMatrix = CreateMatrix(TestData2D[name]);
+            var w = new LinearAlgebra.Double.DenseVector(testMatrix.RowCount, 1);
+            var v = new LinearAlgebra.Double.DenseVector(testMatrix.ColumnCount, 1);
+
+            for (int i = 0; i < testMatrix.ColumnCount; i++)
+            {
+                var copyOfMatrix = testMatrix.Clone();
+                var SortMatrix = testMatrix.Clone();
+                Permutation sortPermutation = SortMatrix.SortByColumn(i);
+                copyOfMatrix.PermuteRows(sortPermutation);
+
+                //check the Permuation could be used to sort another matrix the same way.
+                Assert.AreEqual(SortMatrix, copyOfMatrix);
+
+                // check total Sum of Elements equals same as in Orignal TestMatrix.
+                AssertHelpers.AlmostEqual(w * SortMatrix * v, w * testMatrix * v, 6);
+
+                //check next element in the same Column is greater or equal to preceding element.
+                for (int j = 0; j < testMatrix.RowCount - 1; j++)
+                {
+                    Assert.GreaterOrEqual(SortMatrix[j + 1, i], SortMatrix[j, i]);
+                }
+            }
+
+
+        }
+
+
+        /// <summary>
+        /// Test whether we can sort a matrix by a specific row. So sort each column  of the matrix by a specific row in ascending order.
+        /// </summary>
+        [TestCase("Singular3x3")]
+        [TestCase("Square3x3")]
+        [TestCase("Wide2x3")]
+        public virtual void CanSortMatrixOnRows(string name)
+        {
+            var testMatrix = CreateMatrix(TestData2D[name]);
+            var w = new LinearAlgebra.Double.DenseVector(testMatrix.RowCount, 1);
+            var v = new LinearAlgebra.Double.DenseVector(testMatrix.ColumnCount, 1);
+
+            for (int i = 0; i < testMatrix.RowCount; i++)
+            {
+                var copyOfMatrix = testMatrix.Clone();
+                var SortMatrix = testMatrix.Clone();
+                Permutation sortPermutation = SortMatrix.SortByRow(i);
+                copyOfMatrix.PermuteColumns(sortPermutation);
+
+                //check the Permuation could be used to sort another matrix the same way.
+                Assert.AreEqual(SortMatrix, copyOfMatrix);
+
+                // check total Sum of Elements equals same as in Orignal TestMatrix.
+                AssertHelpers.AlmostEqual(w * SortMatrix * v, w * testMatrix * v, 6);
+
+                //check next element in the same Row is greater or equal to preceding element.
+                for (int j = 0; j < testMatrix.ColumnCount - 1; j++)
+                {
+                    Assert.GreaterOrEqual(SortMatrix[i, j + 1], SortMatrix[i, j]);
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// Tests whether we can find the mask matrix, of a specific premmise. The mask matrix if a matrix with ones where the premise is true.
+        /// </summary>
+        public virtual void CanFindMask()
+        {
+            var testMatrix = CreateMatrix(TestData2D["Tallx3"]);
+            var negativesMatrix = CreateMatrix(TestData2D["Tallx3Negatives"]);
+
+            Predicate<double> match = elem => (elem < 0.0);
+
+            var maskMatrix = testMatrix.FindMask(match);
+            Assert.AreEqual(maskMatrix, negativesMatrix);
+
+            ///// Next Test: test nothing is found that should not be found
+
+            // set newValue to 1 greater than the max.
+            double newValue = 0f;
+            for (int i = 0; i < testMatrix.RowCount; i++)
+            {
+                for (int j = 0; j < testMatrix.ColumnCount; j++)
+                {
+                    if (testMatrix[i, j] >= newValue)
+                        newValue = testMatrix[i, j];
+                }
+            }
+            newValue = newValue + 1.0f;
+
+            //compare to a matrix of all zeros.
+            Assert.AreEqual(testMatrix.FindMask(elem => elem >= newValue), new LinearAlgebra.Double.DenseMatrix(testMatrix.RowCount, testMatrix.ColumnCount));
+
+        }
+
+
+        /// <summary>
+        /// Test whether we can set the elements of a matrix to a value where the mask matrix, which needs to be of the same size, has a 1.
+        /// </summary>
+        [Test]
+        public virtual void CanOnMaskSet()
+        {
+            var testMatrix = CreateMatrix(TestData2D["Tallx3"]);
+            var negativesMatrix = CreateMatrix(TestData2D["Tallx3Negatives"]);
+
+            Predicate<double> match = elem => (elem < 0.0);
+
+            var maskMatrixLtZero = testMatrix.FindMask(match);
+
+            //set all found elements that were <0 , to a value 1.0 greater than the previous biggest value, (method max matrix does not exist yet.)
+            double newValue = 0f;
+
+            for (int i = 0; i < testMatrix.RowCount; i++)
+            {
+                for (int j = 0; j < testMatrix.ColumnCount; j++)
+                {
+                    if (testMatrix[i, j] >= newValue)
+                        newValue = testMatrix[i, j];
+                }
+            }
+
+            newValue = newValue + 1.0f;
+            testMatrix.OnMaskSet(maskMatrixLtZero, newValue);
+
+            //find the mask of all elements equal to the biggest value
+
+            Predicate<double> matchNewValue = elem => (elem == newValue);
+            var maskMatrixNewValue = testMatrix.FindMask(matchNewValue);
+
+            Assert.AreEqual(maskMatrixNewValue, maskMatrixLtZero);
+
+        }
+
+
+        /// <summary>
+        /// Tests whether we can apply a formula to the elements of a matrix to a value where the mask matrix, which needs to be of the same size, has a 1.
+        /// </summary>
+        [Test]
+        public virtual void CanOnMaskApply()
+        {
+            var testMatrix = CreateMatrix(TestData2D["Tallx3"]);
+            var negativesMatrix = CreateMatrix(TestData2D["Tallx3Negatives"]);
+
+            Predicate<double> match = elem => (elem < 0.0);
+
+            var maskMatrixLtZero = testMatrix.FindMask(match);
+
+            // set all negative to -1 * elem to make it positive
+            testMatrix.OnMaskApply(maskMatrixLtZero, elem => -elem);
+
+            // check no elements are negative anymore 
+            Assert.AreEqual(testMatrix.FindMask(match), CreateMatrix(testMatrix.RowCount, testMatrix.ColumnCount));
+
+        }
+
+
+        /// <summary>
+        /// Test whether we can enumerate over the elements of a matrices where the Mask matrix has a 1 .
+        /// </summary>
+        [Test]
+        public virtual void CanEnumerateMask()
+        {
+            var testMatrix = CreateMatrix(TestData2D["Tallx3"]);
+            var negativesMatrix = CreateMatrix(TestData2D["Tallx3Negatives"]);
+
+            Predicate<double> match = elem => (elem < 0.0);
+            
+            //use these later to sum all entries of testMatrix pointwise multiplied with negativesMatrix
+            var w = new LinearAlgebra.Double.DenseVector(testMatrix.RowCount, 1);
+            var v = new LinearAlgebra.Double.DenseVector(testMatrix.ColumnCount, 1);
+
+            var maskMatrixLtZero = testMatrix.FindMask(match);
+            var negativeElements = testMatrix.EnumerateMask(maskMatrixLtZero);
+            double sumNegativeElements = 0;
+
+            foreach (var elem in negativeElements)
+            {
+                sumNegativeElements = sumNegativeElements + elem;
+            }
+
+            var matrixPProduct = negativesMatrix.PointwiseMultiply(testMatrix);
+            var sumMatrixProduct = w * matrixPProduct * v;
+            Assert.AreEqual(sumNegativeElements, sumMatrixProduct);
+        }
+
+
+        /// <summary>
+        /// Test whether we can find the indeces of a matrix elements where a specific the premise is true.
+        /// </summary>
+        [Test]
+        public virtual void CanFindIndices()
+        {
+            var testMatrix = CreateMatrix(TestData2D["Tallx3"]);
+            var negativesMatrix = CreateMatrix(TestData2D["Tallx3Negatives"]);
+
+            Predicate<double> match = elem => (elem < 0.0);
+
+            var myFoundIndices = testMatrix.FindIndices(match);
+
+            int count = 0;
+            foreach (var ftup in myFoundIndices)
+            {
+                Assert.AreEqual(negativesMatrix[ftup.Item1, ftup.Item2], 1.0f);
+                count++;
+            }
+
+            //make sure only 3 ( or 2 for the diagnoal test matrix) are found.
+            Assert.GreaterOrEqual(3, count);
+
+        }
+
+        /// <summary>
+        /// Test whether we can remove a column from a matrix. Does not make sense to run for a diagonal matrix.
+        /// </summary>
+        [TestCase("Singular3x3")]
+        [TestCase("Square3x3")]
+        [TestCase("Wide2x3")]
+        public virtual void CanRemoveColumn(string name)
+        {
+            var testMatrix = CreateMatrix(TestData2D[name]);
+            foreach (int i in testMatrix.ColumnIndices())
+            {
+                var alteredMatrix = testMatrix.InsertColumn(i, testMatrix.Column(i));
+                alteredMatrix = alteredMatrix.RemoveColumn(i);
+                Assert.AreEqual(testMatrix, alteredMatrix);
+            }
+        }
+
+        /// <summary>
+        /// Test whether we can remove a row  from a matrix. Does not make sense to run for a diagonal matrix.
+        /// </summary>
+        [TestCase("Singular3x3")]
+        [TestCase("Square3x3")]
+        [TestCase("Wide2x3")]
+        public virtual void CanRemoveRow(string name)
+        {
+            var testMatrix = CreateMatrix(TestData2D[name]);
+
+            foreach (int i in testMatrix.RowIndices())
+            {
+                var alteredMatrix = testMatrix.InsertRow(i, testMatrix.Row(i));
+                alteredMatrix = alteredMatrix.RemoveRow(i);
+                Assert.AreEqual(testMatrix, alteredMatrix);
+            }
+        }
+
+
+        /// <summary>
+        /// Test whether we can remove a row and column at the same time from a matrix. 
+        /// </summary>
+        [TestCase("Singular3x3")]
+        [TestCase("Square3x3")]
+        public virtual void CanRemoveRowAndColumn(string name)
+        {
+            var testMatrix = CreateMatrix(TestData2D[name]);
+
+            for (int i = 0; i < testMatrix.RowCount && i < testMatrix.ColumnCount; i++)
+            {
+                var alteredMatrix = testMatrix.InsertRow(i, testMatrix.Row(i));
+                alteredMatrix = alteredMatrix.InsertColumn(i, alteredMatrix.Column(i));
+                alteredMatrix = alteredMatrix.RemoveRowAndColumn(i);
+                Assert.AreEqual(testMatrix, alteredMatrix);
+            }
+
+        }
+
+        /// <summary>
+        /// Test wether we can forma a new matrix which is a selection of Columns of a matrix. 
+        /// </summary>
+        /// <param name="rowIndex">the column Index to start from </param>
+        /// <param name="numberOfColumns">The number of columns</param>
+        /// <param name="name">The matrix name to test on.</param>
+        [TestCase(0, 3, "Singular3x3")]
+        [TestCase(1, 1, "Square3x3")]
+        [TestCase(2, 1, "Square3x3")]
+        [TestCase(0, 2, "Square3x3")]
+        [TestCase(0, 1, "Square3x3")]
+        [TestCase(1, 2, "Square3x3")]
+        public void CanSelectColumns(int columnIndex, int numberOfColumns, string name)
+        {
+            var matrix = TestMatrices[name];
+            var columnsM = matrix.SelectColumns(columnIndex, numberOfColumns);
+
+            var columnFirst = matrix.Column(columnIndex);
+            var matrixCombined = columnFirst.ToColumnMatrix();
+
+            for (int i = 1; i < numberOfColumns; i++)
+            {
+                var columni = matrix.Column(columnIndex + i);
+                matrixCombined = matrixCombined.Append(columni.ToColumnMatrix());
+            }
+
+            Assert.AreEqual(columnsM, matrixCombined);
+
+
+
+        }
+
+
+        /// <summary>
+        /// Test wether we can forma a new matrix which is a selection of Rows of a matrix 
+        /// </summary>
+        /// <param name="rowIndex">the row Index to start from </param>
+        /// <param name="numberOfRows">The number of Rows</param>
+        /// <param name="name"></param>
+        [TestCase(0, 3, "Singular3x3")]
+        [TestCase(1, 1, "Square3x3")]
+        [TestCase(2, 1, "Square3x3")]
+        [TestCase(0, 2, "Square3x3")]
+        [TestCase(0, 1, "Square3x3")]
+        [TestCase(1, 2, "Square3x3")]
+        public void CanSelectRows(int rowIndex, int numberOfRows, string name)
+        {
+            var matrix = TestMatrices[name];
+            var rowsM = matrix.SelectRows(rowIndex, numberOfRows);
+
+            var rowFirst = matrix.Row(rowIndex);
+            var matrixCombined = rowFirst.ToRowMatrix();
+
+            for (int i = 1; i < numberOfRows; i++)
+            {
+                var rowi = matrix.Row(rowIndex + i);
+                matrixCombined = matrixCombined.Stack(rowi.ToRowMatrix());
+            }
+
+            Assert.AreEqual(rowsM, matrixCombined);
+
+        }
+
+
+
+        /// <summary>
+        /// Test wether we can set a selection of Rows of a matrix to another Matrix with the same numer of Columns.
+        /// </summary>
+        /// <param name="rowIndex">the row Index to start from </param>
+        /// <param name="numberOfRows">The number of Rows</param>
+        /// <param name="name"></param>
+        [TestCase(0, 3, "Singular3x3")]
+        [TestCase(1, 1, "Square3x3")]
+        [TestCase(2, 1, "Square3x3")]
+        [TestCase(0, 2, "Square3x3")]
+        [TestCase(0, 1, "Square3x3")]
+        [TestCase(1, 2, "Square3x3")]
+        public void CanSetRows(int rowIndex, int numberOfRows, string name)
+        {
+            var matrix = TestMatrices[name];
+            var rowsM = matrix.SelectRows(rowIndex, numberOfRows);
+
+            var matrixCopy = matrix.Clone();
+            //set certain rows to 0.
+            var zerosMatrix = new LinearAlgebra.Double.DenseMatrix(numberOfRows, matrixCopy.ColumnCount);
+            matrixCopy.SetRows(rowIndex, numberOfRows, zerosMatrix);
+            Assert.AreNotEqual(matrix, matrixCopy);
+            Assert.AreEqual(zerosMatrix, matrixCopy.SelectRows(rowIndex, numberOfRows));
+
+            //set rows back to original
+            matrixCopy.SetRows(rowIndex, numberOfRows, rowsM);
+            Assert.AreEqual(matrix, matrixCopy);
+
+        }
+
+
+        /// <summary>
+        /// Test wether we can set a selection of Columns of a matrix to another Matrix with the same numer of Columns.
+        /// </summary>
+        /// <param name="ColumnIndex">the Column Index to start from </param>
+        /// <param name="numberOfColumns">The number of Columns</param>
+        /// <param name="name"></param>
+        [TestCase(0, 3, "Singular3x3")]
+        [TestCase(1, 1, "Square3x3")]
+        [TestCase(1, 2, "Square3x3")]
+        [TestCase(0, 2, "Square3x3")]
+        [TestCase(0, 1, "Square3x3")]
+        [TestCase(1, 2, "Square3x3")]
+        public void CanSetColumns(int ColumnIndex, int numberOfColumns, string name)
+        {
+            var matrix = TestMatrices[name];
+            var ColumnsM = matrix.SelectColumns(ColumnIndex, numberOfColumns);
+
+            var matrixCopy = matrix.Clone();
+            //set certain Columns to 0.
+            var zerosMatrix = new LinearAlgebra.Double.DenseMatrix(matrixCopy.RowCount,numberOfColumns);
+            matrixCopy.SetColumns(ColumnIndex, numberOfColumns, zerosMatrix);
+            Assert.AreNotEqual(matrix, matrixCopy);
+            Assert.AreEqual(zerosMatrix, matrixCopy.SelectColumns(ColumnIndex, numberOfColumns));
+
+            //set Columns back to original
+            matrixCopy.SetColumns(ColumnIndex, numberOfColumns, ColumnsM);
+            Assert.AreEqual(matrix, matrixCopy);
+
+        }
+
+    
+    
     }
 }

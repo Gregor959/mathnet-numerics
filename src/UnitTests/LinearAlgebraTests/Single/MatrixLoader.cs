@@ -100,7 +100,9 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Single
                              { "Singular4x4", new[,] { { -1.1f, -2.2f, -3.3f, -4.4f }, { -1.1f, -2.2f, -3.3f, -4.4f }, { -1.1f, -2.2f, -3.3f, -4.4f }, { -1.1f, -2.2f, -3.3f, -4.4f } } },
                              { "Tall3x2", new[,] { { -1.1f, -2.2f }, { 0.0f, 1.1f }, { -4.4f, 5.5f } } },
                              { "Wide2x3", new[,] { { -1.1f, -2.2f, -3.3f }, { 0.0f, 1.1f, 2.2f } } },
-                             { "Symmetric3x3", new[,] { { 1.0f, 2.0f, 3.0f }, { 2.0f, 2.0f, 0.0f }, { 3.0f, 0.0f, 3.0f } } }
+                             { "Symmetric3x3", new[,] { { 1.0f, 2.0f, 3.0f }, { 2.0f, 2.0f, 0.0f }, { 3.0f, 0.0f, 3.0f } } },
+                             { "Tallx3",new [,] { { 5.1f,  12.2f,  -3.0f },   { 3.1f,  40.0f,   5.0f },   { 1.0f,  -6.1f,   7.0f },  { 2.0f,   1.1f,    0.0f  },  { 4.0f, -26.0f,   0.3f} }},
+                             { "Tallx3Negatives", new [,] {{ 0.0f,  0.0f,   1.0f }, { 0.0f,   0.0f,   0.0f }, { 0.0f,   1.0f,   0.0f }, { 0.0f,   0.0f,   0.0f  }, { 0.0f,   1.0f,   0.0f} }}   
                          };
 
             TestMatrices = new Dictionary<string, Matrix>();

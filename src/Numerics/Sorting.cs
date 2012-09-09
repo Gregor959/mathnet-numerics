@@ -32,6 +32,7 @@ namespace MathNet.Numerics
 {
     using System;
     using System.Collections.Generic;
+    using MathNet.Numerics.Random;
 
     /// <summary>
     /// Sorting algorithms for single, tuple and triple lists.
@@ -593,4 +594,64 @@ namespace MathNet.Numerics
             keys[b] = local;
         }
     }
+
+
+    public static class SortingExtensions
+    {
+
+        //if one is going to use a known random Number generator might as well make it easily repeatable.
+        static readonly System.Random random = new System.Random(555);
+
+        /// <summary>
+        /// Creates a Random Permutation of lenght len (indexes 0 to len -1). Internally uses System.Random with the same seed.
+        /// using RandomPermutation(int len, AbstractRandomNumberGenerator rnd) can give better randomness.
+        /// </summary>
+        /// <param name="len">the length of the Permuation</param>
+        /// <returns></returns>
+        public static Permutation RandomPermutation(int len)
+        {
+
+            int[] keys = new int[len];
+            int[] items = new int[len];
+
+            for (int i = 0; i < keys.Length; i++)
+            {
+                items[i] = i;
+                lock (SortingExtensions.random)//System Random is not thread save!
+                {
+                    keys[i] = SortingExtensions.random.Next();
+                }
+            }
+            Sorting.Sort(keys, items);
+            //although not neccessary here, the inverse of a Permutation corrseponds to a given sort order, if that Permuation was to be used to sort a matrix in the same order as the List.
+            return new Permutation(items).Inverse();
+        }
+
+        /// <summary>
+        /// Creates a Random Permutation of lenght len (indexes 0 to len -1) using a supplied random Number Generator
+        /// </summary>
+        /// <param name="len">the lenght of the permuation</param>
+        /// <param name="rnd">The Random number Generator</param>
+        /// <returns>The requested Permutation</returns>
+        public static Permutation RandomPermutation(int len, AbstractRandomNumberGenerator rnd)
+        {
+
+            int[] keys = new int[len];
+            int[] items = new int[len];
+
+            for (int i = 0; i < keys.Length; i++)
+            {
+                items[i] = i;
+                keys[i] = rnd.Next();
+            }
+            Sorting.Sort(keys, items);
+
+            // The inverse of a Permutation corrseponds to a given sort order, 
+            // if that Permuation were to be used to sort a matrix in the same order as the random List above.
+            // Although it is neccessary here , since we are generating a random Permuation,
+            // for consistancy the Permuation is also inversed. 
+            return new Permutation(items).Inverse();
+        }
+    } //SortingExtensions
+
 }

@@ -220,6 +220,7 @@ namespace MathNet.Numerics.LinearAlgebra.Double
             }
         }
 
+
         /// <summary>
         /// Creates a matrix with the given dimensions using the same storage type
         /// as this vector.
@@ -1138,5 +1139,53 @@ namespace MathNet.Numerics.LinearAlgebra.Double
         {
             Data[index] = value;
         }
+
+        /// <summary>
+        /// Tests  all the elements of a given Vector  for a conditon and returns a Vector os the same dimesionns of 1.0 where this conditions is true.  
+        /// 0.0 where the condition is not true. The condition is given using System.Predicate;
+        /// </summary>
+        /// <param name="matchCondition">System.Predicate. The condition that the matrix elemets are tested for.</param>
+        /// <returns> The resultant Vector.</returns>
+        /// <exception cref="ArgumentNullException">If matchCondition is <see langword="null" />.</exception>
+        public override Vector<double> FindMask(Predicate<double> matchCondition)
+        {
+            if (matchCondition == null) throw new ArgumentNullException("matchCondition");
+
+            var result = new DenseVector(this.Count);
+
+            for (var index = 0; index < Count; index++)
+            {
+                if (matchCondition(this.Data[index]))
+                {
+                    result.Data[index] = 1.0;
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Creates a new Instance of a DenseVector filled with zeros. 
+        /// </summary>
+        /// <param name="size">The size of the new vector</param>
+        /// <param name="Columns"></param>
+        /// <returns>The Vector filled with 0.0</returns>
+        public static Vector Zeros(int size)
+        {
+
+            return new DenseVector(size);
+        }
+
+        /// <summary>
+        /// Creates a new Instance of a DenseVector filled with ones. 
+        /// </summary>
+        /// <param name="size">The size of the new vector</param>
+        /// <returns>The Vector filled with 1.0</returns>
+        public static Vector Ones(int size)
+        {
+            return new DenseVector(size, 1.0);
+        }
+
+    
     }
 }

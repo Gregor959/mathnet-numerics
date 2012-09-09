@@ -494,6 +494,196 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Complex32
             }
         }
 
+
+        /// <summary>
+        /// Test if find the correct mask of elements > testvalue
+        /// </summary>
+        [Test]
+        public void CanFindMask()
+        {
+            var vector = CreateVector(Data);
+            float testValue = 2.0f;
+            var maskvector = vector.FindMask(a => a.Real > testValue);
+
+            foreach (var indx in vector.GetIndexedEnumerator())
+            {
+                if (indx.Item2.Real > testValue)
+                    Assert.AreEqual(Complex32.One, maskvector.At(indx.Item1));
+                else
+                    Assert.AreEqual(Complex32.Zero, maskvector.At(indx.Item1));
+            }
+        }
+
+
+        /// <summary>
+        /// Test if find the correct indeces of elements > testvalue
+        /// </summary>
+        [Test]
+        public void CanFindIndices()
+        {
+            var vector = CreateVector(Data);
+            float testValue = 2.0f;
+            var indEnum = vector.FindIndices(a => a.Real > testValue);
+
+            foreach (var indx in vector.GetIndexedEnumerator())
+            {
+                if (indx.Item2.Real > testValue)
+                //then it should also be found in the indEnum 
+                {
+                    int found = 0;
+                    foreach (int index in indEnum)
+                    {
+                        if (index == indx.Item1) found = 1;
+                    }
+                    Assert.AreEqual(found, 1);
+                }
+
+                else
+                //it should not  be in indEnum 
+                {
+                    foreach (int index in indEnum)
+                    {
+                        Assert.AreNotEqual(index, indx.Item1);
+                    }
+                }
+            }
+        }
+
+
+        /// <summary>
+        /// Test if can set on indeces of elements.
+        /// </summary>
+        [Test]
+        public void CanSetOnIndices()
+        {
+            var vector = CreateVector(Data);
+            float testValue = 2.0f;
+            var indEnum = vector.FindIndices(a => a.Real > testValue);
+
+            //make sure at lesat one is found.
+            int found = 0;
+            foreach (int index in indEnum)
+            {
+                found = 1;
+            }
+            Assert.AreEqual(found, 1);
+
+            vector.SetOnIndeces(indEnum, testValue);
+
+
+            //make sure none are found now.
+            var indEnum2 = vector.FindIndices(a => a.Real > testValue);
+            int foundAfter = 0;
+            foreach (int index in indEnum2)
+            {
+                found = 1;
+            }
+            Assert.AreEqual(foundAfter, 0);
+        }
+
+
+
+        /// <summary>
+        /// Test if can apply  a formual on indeces of elements.
+        /// </summary>
+        [Test]
+        public void CanApplyOnIndices()
+        {
+            var vector = CreateVector(Data);
+            float testValue = 2.0f;
+            var indEnum = vector.FindIndices(a => a.Real > testValue);
+
+            //make sure at lesat one is found.
+            int found = 0;
+            foreach (int index in indEnum)
+            {
+                found = 1;
+            }
+            Assert.AreEqual(found, 1);
+
+            Func<Complex32, Complex32> multiplywithMinus1 = a => -a;
+
+            vector.ApplyOnIndeces(indEnum, multiplywithMinus1);
+
+
+            //make sure none are found now.
+            var indEnum2 = vector.FindIndices(a => a.Real > testValue);
+            int foundAfter = 0;
+            foreach (int index in indEnum2)
+            {
+                found = 1;
+            }
+            Assert.AreEqual(foundAfter, 0);
+        }
+
+
+        /// <summary>
+        /// Test if can set subvector.
+        /// </summary>
+        [Test]
+        public void CanSetSubVector()
+        {
+            var vector = CreateVector(Data); // 1,2,3,4,5
+            Complex32[] testData = { new Complex32(20, 1), new Complex32(30, 1) };
+            Complex32[] expectedResult = { new Complex32(1, 1), new Complex32(20, 1), new Complex32(30, 1), new Complex32(4, 1), new Complex32(5, 1) };
+            var expectedVector = CreateVector(expectedResult);
+
+            var subvector = CreateVector(testData);
+            vector.SetSubVector(1, 2, subvector);  //uses 0 based indexing so 1 is the the 2nd element.
+            foreach (int i in vector.Indices())
+            {
+                Assert.AreEqual(vector.At(i), expectedVector.At(i));
+            }
+        }
+
+
+        /// <summary>
+        /// Test if can can set on a maskvector.
+        /// </summary>
+        [Test]
+        public void CanOnMaskSet()
+        {
+            var vector = CreateVector(Data);
+            Complex32[] testMask = { 0.0f, 0.0f, 1.0f, 1.0f, 0.0f };
+            Complex32 testValue = new Complex32(30, 1);
+
+            Complex32[] expectedResult = { new Complex32(1, 1), new Complex32(2, 1), new Complex32(30, 1), new Complex32(30, 1), new Complex32(5, 1) };
+            var expectedVector = CreateVector(expectedResult);
+
+            var maskVector = CreateVector(testMask);
+
+            vector.OnMaskSet(maskVector, testValue);
+            // 1,2,3,4,5 => 1,2,30,30,5
+            foreach (int i in vector.Indices())
+            {
+                Assert.AreEqual(vector.At(i), expectedVector.At(i));
+            }
+        }
+
+
+        /// <summary>
+        /// Test if can can apply a formula on a maskvector.
+        /// </summary>
+        [Test]
+        public void CanOnMaskApply()
+        {
+            var vector = CreateVector(Data);
+            Complex32[] testMask = { 0.0f, 0.0f, 1.0f, 1.0f, 0.0f };
+            Func<Complex32, Complex32> testFormula = elem => elem * elem;
+
+            Complex32[] expectedResult = { new Complex32(1, 1), new Complex32(2, 1), new Complex32(3, 1) * new Complex32(3, 1), new Complex32(4, 1) * new Complex32(4, 1), new Complex32(5, 1) };
+            var expectedVector = CreateVector(expectedResult);
+
+            var maskVector = CreateVector(testMask);
+
+            vector.OnMaskApply(maskVector, testFormula);
+            foreach (int i in vector.Indices())
+            {
+                Assert.AreEqual(vector.At(i), expectedVector.At(i));
+            }
+        }
+
+
         /// <summary>
         /// Creates a new instance of the Vector class.
         /// </summary>

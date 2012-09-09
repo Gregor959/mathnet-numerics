@@ -55,7 +55,9 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Double
                              { "Square4x4", new[,] { { -1.1, 0.0, 0.0, 0.0 }, { 0.0, 1.1, 0.0, 0.0 }, { 0.0, 0.0, 6.2, 0.0 }, { 0.0, 0.0, 0.0, -7.7 } } },
                              { "Singular4x4", new[,] { { -1.1, 0.0, 0.0, 0.0 }, { 0.0, -2.2, 0.0, 0.0 }, { 0.0, 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0, -4.4 } } },
                              { "Tall3x2", new[,] { { -1.1, 0.0 }, { 0.0, 1.1 }, { 0.0, 0.0 } } },
-                             { "Wide2x3", new[,] { { -1.1, 0.0, 0.0 }, { 0.0, 1.1, 0.0 } } }
+                             { "Wide2x3", new[,] { { -1.1, 0.0, 0.0 }, { 0.0, 1.1, 0.0 } } },
+                             { "Tallx3",new [,] { { 5.1,  0.0,  0.0 },   { 0.0,  -40.0,   0.0 },   { 0.0,  0.0,   -7.0 } }},
+                             { "Tallx3Negatives", new [,] {{ 0.0,  0.0,   0.0 }, { 0.0,   1.0,   0.0 }, { 0.0,   0.0,   1.0 } }}   
                          };
 
             TestMatrices = new Dictionary<string, Matrix>();
@@ -411,5 +413,97 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Double
             var test = diagonal * dense;
             var test2 = dense * diagonal;
         }
+
+
+        /// <summary>
+        /// Remove Column check to see if it throws <c>InvalidOperationException</c>.
+        /// </summary>
+        [TestCase("Singular3x3")]
+        [TestCase("Square3x3")]
+        public override void CanRemoveColumn(string name)
+        {
+            var testMatrix = CreateMatrix(TestData2D[name]);
+            foreach (int i in testMatrix.ColumnIndices())
+            {
+                Assert.Throws<InvalidOperationException>(() => testMatrix.RemoveColumn(i));
+            }
+        }
+
+        /// <summary>
+        /// Remove Row check to see if it throws <c>InvalidOperationException</c>.
+        /// </summary>
+        [TestCase("Singular3x3")]
+        [TestCase("Square3x3")]
+        public override void CanRemoveRow(string name)
+        {
+            var testMatrix = CreateMatrix(TestData2D[name]);
+
+            foreach (int i in testMatrix.RowIndices())
+            {
+                Assert.Throws<InvalidOperationException>(() => testMatrix.RemoveRow(i));
+            }
+        }
+
+        /// <summary>
+        /// Check to see if it throws <c>InvalidOperationException</c>.
+        /// </summary>
+        [TestCase("Square3x3")]
+        [TestCase("Wide2x3")]
+        public override void CanShuffleMatrixOnColumns(string name)
+        {
+            var testMatrix = CreateMatrix(TestData2D[name]);// TestMatrices[name];
+            Assert.Throws<InvalidOperationException>(() => testMatrix.ShuffleColumns());
+
+        }
+
+
+        /// <summary>
+        /// Check to see if it throws <c>InvalidOperationException</c>.
+        /// </summary>
+        [TestCase("Square3x3")]
+        [TestCase("Wide2x3")]
+        public override void CanShuffleMatrixOnRows(string name)
+        {
+            var testMatrix = CreateMatrix(TestData2D[name]);// TestMatrices[name];
+            Assert.Throws<InvalidOperationException>(() => testMatrix.ShuffleRows());
+
+        }
+
+
+
+        /// <summary>
+        /// Check to see if it throws <c>InvalidOperationException</c>.
+        /// </summary>
+        [TestCase("Singular3x3")]
+        [TestCase("Square3x3")]
+        public override void CanSortMatrixOnColumns(string name)
+        {
+            var testMatrix = CreateMatrix(TestData2D[name]);
+            
+            for (int i = 0; i < testMatrix.ColumnCount; i++)
+            {
+                Assert.Throws<InvalidOperationException>(() => testMatrix.SortByColumn(i));
+            }
+
+
+        }
+
+
+        /// <summary>
+        /// Check to see if it throws <c>InvalidOperationException</c>.
+        /// </summary>
+        [TestCase("Singular3x3")]
+        [TestCase("Square3x3")]
+        public override void CanSortMatrixOnRows(string name)
+        {
+            var testMatrix = CreateMatrix(TestData2D[name]);
+            
+            for (int i = 0; i < testMatrix.RowCount; i++)
+            {
+                Assert.Throws<InvalidOperationException>(() => testMatrix.SortByRow(i));
+            }
+        }
+
+    
     }
 }

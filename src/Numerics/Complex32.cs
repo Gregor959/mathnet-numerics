@@ -72,7 +72,7 @@ namespace MathNet.Numerics
     /// </remarks>
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
-    public struct Complex32 : IFormattable, IEquatable<Complex32>, IPrecisionSupport<Complex32>
+    public struct Complex32 : IFormattable, IEquatable<Complex32>, IPrecisionSupport<Complex32>,IComparable<Complex32>
     {
         #region fields
 
@@ -1706,5 +1706,18 @@ namespace MathNet.Numerics
         {
             return value.SquareRoot();
         }
+
+        //Compare can be used to sort Complex values first on magnitude and then on the phase.
+        public int CompareTo(Complex32 b)
+        {
+            int answ = this.MagnitudeSquared.CompareTo(b.MagnitudeSquared);
+            if (answ != 0)
+            {
+                return answ;
+            }
+            return this.Phase.CompareTo(b.Phase);
+        }
+
+
     }
 }

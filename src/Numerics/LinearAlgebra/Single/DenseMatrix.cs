@@ -782,5 +782,98 @@ namespace MathNet.Numerics.LinearAlgebra.Single
 
             return (DenseMatrix)leftSide.Modulus(rightSide);
         }
+
+        /// <summary>
+        /// Creates a new Matrix with Row and Column of Index removed
+        /// </summary>
+        /// <param name="index">The index of the row and column to remove</param>
+        /// <returns>The resultant Matrix with the row and column removed</returns>
+        /// <exception cref="ArgumentOutOfRangeException">If <paramref name="index"/> greater then the matrix rows or columns.</exception>
+        public override Matrix<float> RemoveRowAndColumn(int index)
+        {
+            if (index < 0)
+            {
+                throw new ArgumentOutOfRangeException("index");
+            }
+
+            if (index >= ColumnCount)
+            {
+                throw new ArgumentOutOfRangeException("index");
+            }
+
+            if (index >= RowCount)
+            {
+                throw new ArgumentOutOfRangeException("index");
+            }
+            DenseMatrix outMatrix = new DenseMatrix(RowCount - 1, ColumnCount - 1);
+            int targetIndex = 0; int sourceIndex = 0;
+            for (var column = 0; column < ColumnCount; column++) //column major storage so data is stored column by column one row at a time
+            {
+                for (var row = 0; row < RowCount; row++)
+                {
+                    if (row != index && column != index)
+                    {
+                        outMatrix.Data[targetIndex] = Data[sourceIndex];
+                        targetIndex++;
+                    }//else skip assignment. But always increment the sourceIndex 
+                    sourceIndex++;
+                }
+            }
+            return outMatrix;
+        }
+
+        /// <summary>
+        /// Tests  all the elements of a matrix for a conditon and returns a Matrix of 1.0 where this conditions is true.  
+        /// The condition is given using System.Predicate;
+        /// </summary>
+        /// <param name="matchCondition">System.Predicate. The condition that the matrix elemets are tested for.</param>
+        /// <returns> The resultant Matrix.</returns>
+        /// <exception cref="ArgumentNullException">If matchCondition is <see langword="null" />.</exception>
+        public override Matrix<float> FindMask(Predicate<float> matchCondition)
+        {
+            if (matchCondition == null) throw new ArgumentNullException("matchCondition");
+
+            DenseMatrix outMatrix = new DenseMatrix(RowCount, ColumnCount);
+            int i = 0;
+            for (var column = 0; column < ColumnCount; column++) //column major storage so data is stored column by column one row at a time
+            {
+                for (var row = 0; row < RowCount; row++)
+                {
+                    if (matchCondition(Data[i]))
+                    {
+                        outMatrix.Data[i] = 1.0f;
+                    }
+                    i++;
+                }
+            }
+
+            return outMatrix;
+        }
+
+
+        /// <summary>
+        /// Creates a DenseMatrix filled with Zeros. 
+        /// </summary>
+        /// <param name="Rows"></param>
+        /// <param name="Columns"></param>
+        /// <returns>The Matrix filled with 0.0</returns>
+        public static Matrix Zeros(int Rows, int Columns)
+        {
+            return new DenseMatrix(Rows, Columns);
+        }
+
+        /// <summary>
+        /// Creates a DenseMatrix of Ones filled with Ones 
+        /// </summary>
+        /// <param name="Rows"></param>
+        /// <param name="Columns"></param>
+        /// <returns>The Matrix filled with 1.0</returns>
+        public static Matrix Ones(int Rows, int Columns)
+        {
+            return new DenseMatrix(Rows, Columns, 1.0f);
+        }
+
+
+        
     }
 }

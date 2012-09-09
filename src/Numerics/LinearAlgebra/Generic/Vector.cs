@@ -1623,5 +1623,227 @@ namespace MathNet.Numerics.LinearAlgebra.Generic
         /// <param name="index">The index of the value to get or set.</param>
         /// <param name="value">The value to set.</param>
         internal protected abstract void At(int index, T value);
-    }
+    
+
+
+    
+        /// <summary>
+        /// Tests  all the elements of a given Vector  for a conditon and returns a Vector of the same dimesionns of 1.0 where this conditions is true.  
+        /// 0.0 where the condition is not true. The condition is given using System.Predicate;
+        /// </summary>
+        /// <param name="matchCondition">System.Predicate. The condition that the Vector elements are tested for.</param>
+        /// <returns> The resultant Vector.</returns>
+        /// <exception cref="ArgumentNullException">If matchCondition is <see langword="null" />.</exception>
+        public virtual Vector<T> FindMask(Predicate<T> matchCondition)
+        {
+            if (matchCondition == null) throw new ArgumentNullException("matchCondition");
+
+            var result = CreateVector(this.Count);
+
+            for (var index = 0; index < Count; index++)
+            {
+                    if (matchCondition(At(index)))
+                    {
+                        result.At(index, One);
+                    }
+            }
+
+            return result;
+        }
+
+
+        /// <summary>
+        /// Tests  all the elements of a given Vector  for a conditon and returns an <see cref="IEnumerable{T}"/> of indeces (0 based) where this conditions is true.  
+        /// The condition is given using System.Predicate;
+        /// </summary>
+        /// <param name="matchCondition">System.Predicate. The condition that the Vector elements are tested for.</param>
+        /// <returns> The resultant <see cref="IEnumerable{T}"/> of ints where the Predicate is true , using 0 based indexing.</returns>
+        /// <exception cref="ArgumentNullException">If matchCondition is <see langword="null" />.</exception>
+        public virtual IEnumerable<int> FindIndices(Predicate<T> matchCondition)
+        {
+            if (matchCondition == null) throw new ArgumentNullException("matchCondition");
+
+            for (var index = 0; index < Count; index++)
+            {
+                if (matchCondition(At(index)))
+                {
+                    yield return index;
+                }
+            }
+
+            yield break;
+        }
+
+        /// <summary>
+        /// For each int in an enumerable of ints set all the elements of the given Vector to a specified value.
+        /// </summary>
+        /// <param name="indxs">The enumerables of ints, using 0 based indexing.</param>
+        /// <param name="value">The value to set the Elements to.</param>
+        /// <exception cref="ArgumentNullException">If indxs is <see langword="null" />.</exception>
+        public virtual void SetOnIndeces(IEnumerable<int> indxs, T value)
+        {
+            if (indxs == null) throw new ArgumentNullException("indxs");
+
+            foreach (int i in indxs)
+            { this[i]= value; 
+            }
+        }
+
+        /// <summary>
+        /// For each int in an enumerable of ints applies a function to the given Vector and sets the elements to the outcome of the function.
+        /// </summary>
+        /// <param name="indxs">The enumerables of ints , using 0 based indexing</param>
+        /// <param name="fun"> The function </param>
+        /// <exception cref="ArgumentNullException">If indxs is <see langword="null" />.</exception>
+        public virtual void ApplyOnIndeces(IEnumerable<int> indxs, Func<T, T> fun)
+        {
+            if (indxs == null) throw new ArgumentNullException("indxs");
+
+            foreach (int i in indxs)
+            {
+                this[i]= fun(this[i]);
+            }
+        }
+
+        
+        /// <summary>
+        /// Updates specified elements of the Vector.
+        /// </summary>
+        /// <param name="index">The first element to begin copying from.</param>
+        /// <param name="length">The number of elements to copy.</param>
+        /// <param name="vectorToCopyFrom">The vector to copy from .</param>
+        /// <exception cref="ArgumentOutOfRangeException"><list><item>If <paramref name="index"/> is not positive or
+        /// greater than or equal to the size of the vector.</item>
+        /// <item>If <paramref name="index"/> + <paramref name="length"/> is greater than or equal to the size of the vector.</item>
+        /// </list></exception>
+        /// <exception cref="ArgumentException">If <paramref name="length"/> is not positive.</exception>
+        public virtual void SetSubVector(int index, int length, Vector<T> vectorToCopyFrom)
+        {
+            if (index < 0 || index >= Count)
+            {
+                throw new ArgumentOutOfRangeException("index");
+            }
+
+            if (length <= 0)
+            {
+                throw new ArgumentOutOfRangeException("length");
+            }
+
+            if (index + length > Count)
+            {
+                throw new ArgumentOutOfRangeException("index");
+            }
+
+            if (length > vectorToCopyFrom.Count)
+            {
+                throw new ArgumentOutOfRangeException("length, length greater than length of vectorToCopyFrom.");
+            }
+
+
+            CommonParallel.For(
+                index,
+                index + length,
+                i => this.At(i,vectorToCopyFrom.At(i-index)));
+        }
+
+
+        /// <summary>
+        /// Updates specified elements of the Vector with the other vector's elements.
+        /// </summary>
+        /// <param name="index">The first element to begin copying from.</param>
+        /// <param name="vectorToCopyFrom">The vector to copy from .</param>
+        /// <exception cref="ArgumentOutOfRangeException"><list><item>If <paramref name="index"/> is not positive or
+        /// greater than or equal to the size of the vector.</item>
+        /// <item>If <paramref name="index"/> + <paramref name="vectorToCopyFrom"/> 'size  is greater than or equal to the size of the vector.</item>
+        public virtual void SetSubVector(int index, Vector<T> vectorToCopyFrom)
+        {
+            SetSubVector(index, vectorToCopyFrom.Count, vectorToCopyFrom);
+        }
+
+
+        /// <summary>
+        /// Set the element of a given Vector  to a spefic value, where the mask Vectors elements ==1. 
+        /// The Mask Matrix needs to have the same dimension of the given matrix.
+        /// </summary>
+        /// <param name="mask">The Mask Vector with elements 1's and 0's. needs to be of the same dimesions as this. </param>
+        /// <param name="value"> The value to set the elements of the given vector to. </param>
+        /// <exception cref="ArgumentNullException">If the mask vector is <see langword="null" />.</exception>
+        /// <exception cref="ArgumentException">If the mask vectors dimensions are not equal to this dimesions.</exception>
+        public virtual void OnMaskSet(Vector<T> mask, T value)
+        {
+            if (mask == null)
+            {
+                throw new ArgumentNullException("mask");
+            }
+
+            if (mask.Count != this.Count)
+            {
+                throw new ArgumentException(Resources.ArgumentVectorsSameLength, "mask");
+            }
+
+            for (var index = 0; index < Count; index++)
+            {
+                if (Equals(mask.At(index), One))
+                {
+                    At(index, value);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Applies a function to the elements of a given Vector , where the mask Vector's elements == 1. 
+        /// The Mask Vector needs to have the same dimension of the given vector.
+        /// </summary>
+        /// <param name="mask">The Mask Vector needs to be of the same dimesions as this. </param>
+        /// <param name="func"></param>
+        /// <exception cref="ArgumentNullException">If the mask vector is <see langword="null" />.</exception>
+        /// <exception cref="ArgumentNullException">If func is <see langword="null" />.</exception>
+        /// <exception cref="ArgumentException">If the mask vectors dimensions are not equal to this dimesions.</exception>
+        public virtual void OnMaskApply(Vector<T> mask, Func<T, T> func)
+        {
+
+            if (func == null)
+            {
+                throw new ArgumentNullException("func");
+            }
+
+            if (mask == null )
+            {
+                throw new ArgumentNullException("mask");
+            }
+
+
+            if (mask.Count != this.Count)
+            {
+                throw new ArgumentException(Resources.ArgumentVectorsSameLength, "mask");
+            }
+
+            for (var index = 0; index < Count; index++)
+            {
+                if (Equals(mask.At(index), One))
+                {
+                     At(index, func(At(index)));
+                }
+            }
+   
+   
+        }
+
+
+        /// <summary>
+        /// Returns an <see cref="IEnumerator{int}"/> that enumerates over the vectors  indices. 0..Count-1
+        /// </summary>
+        /// <returns>An <see cref="IEnumerator{int}"/> that enumerates over the vectors indices</returns>
+        public IEnumerable<int> Indices()
+        {
+            for (int i = 0; i < Count; i++)
+            {
+                yield return i;
+            }
+            yield break;
+        }
+
+
+        
+  }
 }

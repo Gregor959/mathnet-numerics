@@ -27,6 +27,7 @@
 namespace MathNet.Numerics.LinearAlgebra.Generic
 {
     using System;
+    using System.Linq;
     using System.Collections.Generic;
     using System.Numerics;
     using System.Text;
@@ -35,6 +36,7 @@ namespace MathNet.Numerics.LinearAlgebra.Generic
     using Properties;
     using Storage;
     using Threading;
+    using Numerics.Random;
 
     /// <summary>
     /// Defines the base class for <c>Matrix</c> classes.
@@ -1626,5 +1628,533 @@ namespace MathNet.Numerics.LinearAlgebra.Generic
                 return true;
             }
         }
+
+
+
+
+        /// <summary>
+        /// Returns an <see cref="IEnumerator{int}"/> that enumerates over the matrix row indices. 0..RowCount-1
+        /// </summary>
+        /// <returns>An <see cref="IEnumerator{int}"/> that enumerates over the matrix row indices</returns>
+        public IEnumerable<int> RowIndices()
+        {
+            for (int i = 0; i < RowCount; i++)
+            {
+                yield return i;
+            }
+            yield break;
+        }
+
+
+        /// <summary>
+        /// Returns an <see cref="IEnumerator{int}"/> that enumerates over the matrix column indices. 0..ColumnCount-1
+        /// </summary>
+        /// <returns>An <see cref="IEnumerator{int}"/> that enumerates over the matrix column indices</returns>
+        public IEnumerable<int> ColumnIndices()
+        {
+            for (int i = 0; i < ColumnCount; i++)
+            {
+                yield return i;
+            }
+            yield break;
+        }
+
+        /// <summary>
+        ///  Shuffle the columns of a Matrix into a random Order.
+        /// </summary>
+        /// <returns>The Permutation of the columns relative to the previous order.</returns>
+        public virtual Permutation ShuffleColumns()
+        {
+            Permutation rndPerm = SortingExtensions.RandomPermutation(this.ColumnCount);
+            this.PermuteColumns(rndPerm);
+            return rndPerm;
+        }
+
+        /// <summary>
+        ///  Shuffle the columns of a Matrix into a random Order.
+        /// </summary>
+        /// <param name="rnd">An AbstractRandomNumberGenerator that is used to generate the random numbers used in the shuffling process.</param>
+        /// <returns>The Permutation of the columns relative to the previous order.</returns>
+        public virtual Permutation ShuffleColumns(AbstractRandomNumberGenerator rnd)
+        {
+            Permutation rndPerm = SortingExtensions.RandomPermutation(this.ColumnCount, rnd);
+            this.PermuteColumns(rndPerm);
+            return rndPerm;
+
+        }
+
+        /// <summary>
+        /// Shuffles the Rows of a Matrix in a random Order
+        /// </summary>
+        /// <returns>The Permutation of the rows relative to the previous order.</returns>
+        public virtual Permutation ShuffleRows()
+        {
+            Permutation rndPerm = SortingExtensions.RandomPermutation(this.RowCount);
+            this.PermuteRows(rndPerm);
+            return rndPerm;
+
+        }
+
+        /// <summary>
+        /// Shuffles the Rows of a Matrix in a random Order
+        /// </summary>
+        /// <param name="rnd">An AbstractRandomNumberGenerator that is used to generate the random numbers used in the shuffling process.</param>
+        /// <returns>The Permutation of the rows relative to the previous order.</returns>
+        public virtual Permutation ShuffleRows(AbstractRandomNumberGenerator rnd)
+        {
+            Permutation rndPerm = SortingExtensions.RandomPermutation(this.RowCount, rnd);
+            this.PermuteRows(rndPerm);
+            return rndPerm;
+        }
+
+
+        /// <summary>
+        /// Sort the columns of the matrix by a specific row and also returns the Permutation , 
+        /// which can be used to arrange the columns of other matrices in the same order.
+        /// E.g Sorting Matrix myMatrix on Row index 2: 
+        /// myPermuation = myMatrix.SortByRow(2); 
+        /// Would use 
+        /// otherMatrix.PermuteColumns(myPermuation); to sort otherMatrix in the same order. 
+        /// To get the Sorting order as the Matlab, Octave sort method [a,ind] = Sort(myVector),
+        /// the vector 'ind's entries are equivalent to the entries of the IEnumerable : myPermutation.Inverse().Elements(),
+        /// but using  0 based indices instead of 1 based indexes as in Matlab/ Octave.
+        /// </summary>
+        /// <param name="rowIndex">The row to sort the matrix by.</param>
+        /// <returns>The permutation</returns>
+        /// <exception cref="ArgumentOutOfRangeException">If <paramref name="rowIndex"/> is negative,
+        /// or greater than or equal to the number of rows.</exception>
+        public virtual Permutation SortByRow(int rowIndex)
+        {
+            if (rowIndex < 0 || rowIndex >= RowCount)
+            {
+                throw new ArgumentOutOfRangeException("rowIndex");
+            }
+
+
+            Vector<T> rowVector = this.Row(rowIndex);
+            int[] items = new int[ColumnCount];
+            for (int i = 0; i < items.Length; i++)
+            {
+                items[i] = i;
+            }
+
+
+            Sorting.Sort(rowVector.ToList(), items);
+            Permutation sortPerm = new Permutation(items).Inverse(); // need to get inverse of sorting indices.
+            this.PermuteColumns(sortPerm);
+            return sortPerm;
+        }
+
+        /// <summary>
+        /// Sort the rows of the matrix by a specific column and also returns the Permutation , 
+        /// which can be used to arrange the Rows of other matrices in the same order.
+        /// E.g Sorting Matrix myMatrix on Row index 2: 
+        /// myPermuation = myMatrix.SortByRow(2); 
+        /// Would use 
+        /// otherMatrix.PermuteColumns(myPermuation); to sort otherMatrix in the same order. 
+        /// To get the Sorting order as the Matlab, Octave sort method [a,ind] = Sort(myVector),
+        /// the vector 'ind's entries are equivalent to the entries of the IEnumerable : myPermutation.Inverse().Elements()
+        /// , but using  0 based indices instead of 1 based indexes as in Matlab/ Octave.
+        /// </summary>
+        /// <param name="columnIndex">The column to sort the matrix by. </param>
+        /// <returns>The resultant permutation.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">If <paramref name="columnIndex"/> is negative,
+        /// or greater than or equal to the number of columns.</exception>
+        public virtual Permutation SortByColumn(int columnIndex)
+        {
+
+            if (columnIndex < 0 || columnIndex >= ColumnCount)
+            {
+                throw new ArgumentOutOfRangeException("column");
+            }
+
+            Vector<T> ColVector = this.Column(columnIndex);
+            int[] items = new int[RowCount];
+            for (int i = 0; i < items.Length; i++)
+            {
+                items[i] = i;
+            }
+
+            Sorting.Sort(ColVector.ToList(), items);
+            Permutation sortPerm = new Permutation(items).Inverse(); // need to get inverse of Sorting.
+
+            this.PermuteRows(sortPerm);
+            return sortPerm;
+        }
+
+
+
+        /// <summary>
+        /// Tests  all the elements of a matrix for a conditon and returns a Matrix of 1.0 where this conditions is true.  
+        /// The condition is given using System.Predicate;
+        /// </summary>
+        /// <param name="matchCondition">System.Predicate. The condition that the matrix elemets are tested for.</param>
+        /// <returns> The resultant Matrix.</returns>
+        /// <exception cref="ArgumentNullException">If matchCondition is <see langword="null" />.</exception>
+        public virtual Matrix<T> FindMask(Predicate<T> matchCondition)
+        {
+            if (matchCondition == null) throw new ArgumentNullException("matchCondition");
+
+            var result = CreateMatrix(RowCount, ColumnCount);
+
+            for (var column = 0; column < ColumnCount; column++)
+            {
+                for (var row = 0; row < RowCount; row++)
+                {
+                    if (matchCondition(At(row, column)))
+                    {
+                        result.At(row, column, One);
+                    }
+                }
+            }
+
+            return result;
+        }
+
+
+
+        /// <summary>
+        /// Set the element of a given Matrix to a spefic value, where the mask Matrix elements ==1. 
+        /// The Mask Matrix needs to have the same dimension of the given matrix.
+        /// </summary>
+        /// <param name="mask">The mask Matrix with 1 and 0's. </param>
+        /// <param name="value">The value to se the elements of the given matrix to.</param>
+        /// <exception cref="ArgumentNullException">If the mask matrix is <see langword="null" />.</exception>
+        /// <exception cref="ArgumentException">If the mask matrix's dimensions are not equal to this dimesions.</exception>
+        public virtual void OnMaskSet(Matrix<T> mask, T value)
+        {
+            if (mask == null)
+            {
+                throw new ArgumentNullException("mask");
+            }
+
+            if (mask.ColumnCount != this.ColumnCount)
+            {
+                throw new ArgumentException(Resources.ArgumentMatrixSameColumnDimension, "mask");
+            }
+
+            if (mask.RowCount != this.RowCount)
+            {
+                throw new ArgumentException(Resources.ArgumentMatrixSameRowDimension, "mask");
+            }
+
+
+            for (var column = 0; column < ColumnCount; column++)
+            {
+                for (var row = 0; row < RowCount; row++)
+                {
+                    if (Equals(mask.At(row, column), One))
+                        At(row, column, value);
+                }
+            }
+
+        }
+
+
+        /// <summary>
+        /// Applies a function to each element of a given Matrix , where the mask Matrix value ==1. 
+        /// The Mask Matrix needs to have the same dimension of the given matrix.
+        /// </summary>
+        /// <param name="mask">The mask Matrix , needs to be of the same dimesion as this. </param>
+        /// <param name="func">The function to apply to the elements of the matrix.</param>
+        /// <exception cref="ArgumentNullException">If the mask matrix is <see langword="null" />.</exception>
+        /// <exception cref="ArgumentNullException">If the Func is <see langword="null" />.</exception>
+        /// <exception cref="ArgumentException">If the mask matrix's dimensions are not equal to this dimesions.</exception>
+        public virtual void OnMaskApply(Matrix<T> mask, Func<T, T> func)
+        {
+
+            if (func == null)
+            {
+                throw new ArgumentNullException("func");
+            }
+
+            if (mask == null)
+            {
+                throw new ArgumentNullException("mask");
+            }
+
+            if (mask.ColumnCount != this.ColumnCount)
+            {
+                throw new ArgumentException(Resources.ArgumentMatrixSameColumnDimension, "mask");
+            }
+
+            if (mask.RowCount != this.RowCount)
+            {
+                throw new ArgumentException(Resources.ArgumentMatrixSameRowDimension, "mask");
+            }
+
+
+            for (var column = 0; column < ColumnCount; column++)
+            {
+                for (var row = 0; row < RowCount; row++)
+                {
+                    if (Equals(mask.At(row, column), One))
+                        At(row, column, func(At(row, column)));
+                }
+            }
+
+        }
+
+        /// <summary>
+        /// Creates an iterator on the element of the mask matrix    
+        /// Returns the elements of a Matrix where Mask==1 and puts them in an Enumerable 
+        /// </summary>
+        /// <param name="mask"></param>
+        /// <returns>The Matrix Elements enumerated</returns>
+        public virtual IEnumerable<T> EnumerateMask(Matrix<T> mask)
+        {
+            if (mask == null)
+            {
+                throw new ArgumentNullException("mask");
+            }
+
+            if (mask.ColumnCount != this.ColumnCount)
+            {
+                throw new ArgumentException(Resources.ArgumentMatrixSameColumnDimension, "mask");
+            }
+
+            if (mask.RowCount != this.RowCount)
+            {
+                throw new ArgumentException(Resources.ArgumentMatrixSameRowDimension, "mask");
+            }
+
+
+            for (var column = 0; column < ColumnCount; column++)
+            {
+                for (var row = 0; row < RowCount; row++)
+                {
+                    if (Equals(mask.At(row, column), One))
+                    {
+                        yield return At(row, column);
+                    }
+                }
+            }
+            yield break;
+        }
+
+
+        /// <summary>
+        /// Tests  all the elements of a matrix for a conditon and returns and <see cref="IEnumerable{Tuple{int,int}}"/> of a Tuple{int,int} 
+        /// of the indices where this conditions is true.  
+        /// The condition is given using System.Predicate.
+        /// For example to find all elemets >1.0 :    
+        ///    var myFoundindices=myMatrix.FindIndices(a => a > 1.0);
+        ///    foreach( var currentTuple in myFoundindices)
+        ///    {
+        ///        Console.WriteLine("Found indices: rows{0}, columns{1}",currentTuple.Item1, currentTuple.Item2);
+        //     }
+        /// </summary>
+        /// <param name="matchCondition">System.Predicate. The condition that the matrix elemets are tested for.</param>
+        /// <returns> The request <see cref="IEnumerable{Tuple{int,int}}"/> of the row and column indexes respectivly.</returns>
+        /// <exception cref="ArgumentNullException">If matchCondition is <see langword="null" />.</exception>
+        public virtual IEnumerable<Tuple<int, int>> FindIndices(Predicate<T> matchCondition)
+        {
+            if (matchCondition == null) throw new ArgumentNullException("matchCondition");
+
+            for (var column = 0; column < ColumnCount; column++)
+            {
+                for (var row = 0; row < RowCount; row++)
+                {
+                    if (matchCondition(At(row, column)))
+                    {
+                        yield return new Tuple<int, int>(row, column);
+                    }
+                }
+            }
+            yield break;
+        }
+
+
+
+
+
+        /// <summary>
+        /// Creates a new Matrix with Column columnIndex removed
+        /// </summary>
+        /// <param name="columnIndex"></param>
+        /// <returns>The resultant Matrix with the column removed</returns>
+        /// <exception cref="ArgumentOutOfRangeException">If:
+        /// <paramref name="columnindex"/> is negative,
+        /// or greater than or equal to the number of columns.</exception>        
+        /// <exception cref="ArgumentException">If the the matrix only has 1 column. <see langword="null" />.</exception>
+        public virtual Matrix<T> RemoveColumn(int columnIndex)
+        {
+            if (columnIndex < 0 || columnIndex >= ColumnCount)
+            {
+                throw new ArgumentOutOfRangeException("columnIndex");
+            }
+
+            if (ColumnCount <= 1)
+            {
+                throw new ArgumentException("Cannot remove last Column and copy into a new matrix.");
+            }
+
+            if (columnIndex == 0)
+            {   //return only right portion keep indexes as per general case
+                return SubMatrix(0, RowCount, columnIndex + 1, ColumnCount - columnIndex - 1);
+            }
+
+            if (columnIndex == ColumnCount - 1)
+            {  //return only left portion keep indexes as per general case
+                return SubMatrix(0, RowCount, 0, columnIndex);
+            }
+
+            Matrix<T> m1 = SubMatrix(0, RowCount, 0, columnIndex);
+            Matrix<T> m2 = SubMatrix(0, RowCount, columnIndex + 1, ColumnCount - columnIndex - 1);
+            return m1.Append(m2);
+        }
+
+        /// <summary>
+        /// Creates a new Matrix with Row RowIndex removed
+        /// </summary>
+        /// <param name="rowIndex"> The row to remove</param>
+        /// <returns>The resultant Matrix with the row removed</returns>
+        /// <exception cref="ArgumentOutOfRangeException">If:
+        /// <list><item><paramref name="rowIndex"/> is negative or greater than or equal to the number of rows.</item>        
+        /// <exception cref="ArgumenException">If the matrix only has one row. </exception>
+        public virtual Matrix<T> RemoveRow(int rowIndex)
+        {
+            if (rowIndex < 0 || rowIndex >= ColumnCount)
+            {
+                throw new ArgumentOutOfRangeException("rowIndex");
+            }
+
+            if (RowCount <= 1)
+            {
+                throw new ArgumentException("Cannot remove last Row and copy to a new matrix. The new matrix would be ill defined.");
+            }
+
+            if (rowIndex == 0)
+            {  //return only lower portion keep indexes as per general case
+                return SubMatrix(rowIndex + 1, RowCount - rowIndex - 1, 0, ColumnCount);
+            }
+
+            if (rowIndex == RowCount - 1)
+            {   //return only upper portion keep indexes as per general case
+                return SubMatrix(0, rowIndex, 0, ColumnCount);
+            }
+
+
+            Matrix<T> m1 = SubMatrix(0, rowIndex, 0, ColumnCount);
+            Matrix<T> m2 = SubMatrix(rowIndex + 1, RowCount - rowIndex - 1, 0, ColumnCount);
+            return m1.Stack(m2);
+        }
+
+
+        /// <summary>
+        /// Creates a new Matrix with Row and Column of Index removed
+        /// </summary>
+        /// <param name="columnIndex"></param>
+        /// <returns>The resultant Matrix with the row and column removed</returns>
+        /// <exception cref="ArgumentOutOfRangeException">If:
+        /// <list><item><paramref name="index"/> is negative or greater than or equal to the number of columns and rows.</item>     
+        /// <exception cref="ArgumenException">If the matrix only has one row.
+        public virtual Matrix<T> RemoveRowAndColumn(int index)
+        {
+            if (index < 0)
+            {
+                throw new ArgumentOutOfRangeException("index");
+            }
+
+            if (index >= ColumnCount)
+            {
+                throw new ArgumentOutOfRangeException("index");
+            }
+
+            if (index >= RowCount)
+            {
+                throw new ArgumentOutOfRangeException("index");
+            }
+
+            if (RowCount <= 1)
+            {
+                throw new ArgumentException("Cannot remove last Row");
+            }
+
+            if (ColumnCount <= 1)
+            {
+                throw new ArgumentException("Cannot remove last Column");
+            }
+
+            if (index == 0)
+            {  //return only M22 portion, keep indexes as per general case below
+                return SubMatrix(index + 1, RowCount - index - 1, index + 1, ColumnCount - index - 1);
+            }
+
+            if (index == ColumnCount - 1)
+            {   //return only M11 and M21 portion, keep indexes as per general case below
+                Matrix<T> mm11 = SubMatrix(0, index, 0, index);
+                Matrix<T> mm21 = SubMatrix(index + 1, RowCount - index - 1, 0, index);
+                return mm11.Stack(mm21);
+            }
+
+            if (index == RowCount - 1)
+            {   //return only M11 and M12 portion, keep indexes as per general case below
+                Matrix<T> n11 = SubMatrix(0, index, 0, index);
+                Matrix<T> n12 = SubMatrix(0, index, index + 1, ColumnCount - index - 1);
+                return n11.Append(n12);
+            }
+
+            //  ---------
+            // | M11 M12 |
+            // | M21 M22 |
+            // ----------
+            Matrix<T> m11 = SubMatrix(0, index, 0, index);
+            Matrix<T> m12 = SubMatrix(0, index, index + 1, ColumnCount - index - 1);
+            Matrix<T> m21 = SubMatrix(index + 1, RowCount - index - 1, 0, index);
+            Matrix<T> m22 = SubMatrix(index + 1, RowCount - index - 1, index + 1, ColumnCount - index - 1);
+
+            return (m11.Append(m12)).Stack(m21.Append(m22));
+        }
+
+
+        /// <summary>
+        /// Creates a matrix which is a submatrix from this one selecting the columns of a specific range and all the rows. 
+        /// </summary>
+        /// <param name="columnIndex">The index at which to start copying the columns</param>
+        /// <param name="numberOfColumns">The number of columns to copy </param>
+        /// <returns> The requested Matrix.</returns>
+        public virtual Matrix<T> SelectColumns(int columnIndex, int numberOfColumns)
+        {
+            return SubMatrix(0, RowCount, columnIndex, numberOfColumns);
+        }
+
+
+        /// <summary>
+        /// Creates a matrix which is a submatrix from this one selecting the rows of a specific range and all the columns. 
+        /// </summary>
+        /// <param name="rowIndex"> The Index at which to start copying the rows</param>
+        /// <param name="numberOfRows"> The number of rows to copy</param>
+        /// <returns>The requested Matrix</returns>
+        public virtual Matrix<T> SelectRows(int rowIndex, int numberOfRows)
+        {
+            return SubMatrix(rowIndex, numberOfRows, 0, ColumnCount);
+
+        }
+
+        /// <summary>
+        /// Copies the values of a given matrix into a region in this matrix. Copies all the rows and selected columns.
+        /// </summary>
+        /// <param name="columnIndex">The columns to start copying to.</param>
+        /// <param name="numberOfColumns">The number of columns to copy. Must be positive.</param>
+        /// <param name="aMatrix">The matrix to copy from.</param>
+        public virtual void SetColumns(int columnIndex, int numberOfColumns, Matrix<T> aMatrix)
+        {
+            SetSubMatrix(0, RowCount, columnIndex, numberOfColumns, aMatrix);
+        }
+
+        /// <summary>
+        /// Copies the values of a given matrix into a region in this matrix. Copies all the columns and selected rows.
+        /// </summary>
+        /// <param name="rowIndex">The rows to start copying to.</param>
+        /// <param name="numberOfRows">The number of rows to copy. Must be positive.</param>
+        /// <param name="aMatrix">The matrix to copy from.</param>
+        public virtual void SetRows(int rowIndex, int numberOfRows, Matrix<T> aMatrix)
+        {
+            SetSubMatrix(rowIndex, numberOfRows, 0, ColumnCount, aMatrix);
+        }
+
+
+
     }
 }

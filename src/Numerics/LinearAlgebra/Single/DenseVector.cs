@@ -1139,5 +1139,29 @@ namespace MathNet.Numerics.LinearAlgebra.Single
         {
             Data[index] = value;
         }
+
+        /// <summary>
+        /// Creates a new Instance of a DenseVector filled with zeros. 
+        /// </summary>
+        /// <param name="size">The size of the new vector</param>
+        /// <param name="Columns"></param>
+        /// <returns>The Vector filled with 0.0</returns>
+        public static Vector Zeros(int size)
+        {
+
+            return new DenseVector(size);
+        }
+
+        /// <summary>
+        /// Creates a new Instance of a DenseVector filled with ones. 
+        /// </summary>
+        /// <param name="size">The size of the new vector</param>
+        /// <returns>The Vector filled with 1.0</returns>
+        public static Vector Ones(int size)
+        {
+            return new DenseVector(size, 1.0f);
+        }
+
+    
     }
 }

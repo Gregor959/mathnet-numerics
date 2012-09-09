@@ -101,7 +101,9 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Complex
                              { "Singular4x4", new[,] { { new Complex(-1.1, 1), new Complex(-2.2, 1), new Complex(-3.3, 1), new Complex(-4.4, 1) }, { new Complex(-1.1, 1), new Complex(-2.2, 1), new Complex(-3.3, 1), new Complex(-4.4, 1) }, { new Complex(-1.1, 1), new Complex(-2.2, 1), new Complex(-3.3, 1), new Complex(-4.4, 1) }, { new Complex(-1.1, 1), new Complex(-2.2, 1), new Complex(-3.3, 1), new Complex(-4.4, 1) } } },
                              { "Tall3x2", new[,] { { new Complex(-1.1, 1), new Complex(-2.2, 1) }, { Complex.Zero, new Complex(1.1, 1) }, { new Complex(-4.4, 1), new Complex(5.5, 1) } } },
                              { "Wide2x3", new[,] { { new Complex(-1.1, 1), new Complex(-2.2, 1), new Complex(-3.3, 1) }, { Complex.Zero, new Complex(1.1, 1), new Complex(2.2, 1) } } },
-                             { "Symmetric3x3", new[,] { { Complex.One, 2.0, 3.0 }, { 2.0, 2.0, 0.0 }, { 3.0, 0.0, 3.0 } } }
+                             { "Symmetric3x3", new[,] { { Complex.One, 2.0, 3.0 }, { 2.0, 2.0, 0.0 }, { 3.0, 0.0, 3.0 } } },
+                             { "Tallx3",new [,] { { 5.1,  12.2,  -3.0 },   { 3.1,  40.0,   5.0 },   { 1.0,  -6.1,   7.0 },  { 2.0,   1.1,    Complex.Zero  },  { 4.0, -26.0,   0.3} }},
+                             { "Tallx3Negatives", new [,] {{ Complex.Zero,  0.0,   1.0 }, { 0.0,   0.0,   0.0 }, { 0.0,   1.0,   0.0 }, { 0.0,   0.0,   0.0  }, { 0.0,   1.0,   0.0} }}   
                          };
 
             TestMatrices = new Dictionary<string, Matrix>();

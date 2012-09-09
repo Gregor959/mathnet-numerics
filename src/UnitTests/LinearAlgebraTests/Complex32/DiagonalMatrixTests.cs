@@ -55,7 +55,10 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Complex32
                              { "Square4x4", new[,] { { new Complex32(-1.1f, 1), Complex32.Zero, Complex32.Zero, Complex32.Zero }, { Complex32.Zero, new Complex32(1.1f, 1), Complex32.Zero, Complex32.Zero }, { Complex32.Zero, Complex32.Zero, new Complex32(6.2f, 1), Complex32.Zero }, { Complex32.Zero, Complex32.Zero, Complex32.Zero, new Complex32(-7.7f, 1) } } },
                              { "Singular4x4", new[,] { { new Complex32(-1.1f, 1), Complex32.Zero, Complex32.Zero, Complex32.Zero }, { Complex32.Zero, new Complex32(-2.2f, 1), Complex32.Zero, Complex32.Zero }, { Complex32.Zero, Complex32.Zero, Complex32.Zero, Complex32.Zero }, { Complex32.Zero, Complex32.Zero, Complex32.Zero, new Complex32(-4.4f, 1) } } },
                              { "Tall3x2", new[,] { { new Complex32(-1.1f, 1), Complex32.Zero }, { Complex32.Zero, new Complex32(1.1f, 1) }, { Complex32.Zero, Complex32.Zero } } },
-                             { "Wide2x3", new[,] { { new Complex32(-1.1f, 1), Complex32.Zero, Complex32.Zero }, { Complex32.Zero, new Complex32(1.1f, 1), Complex32.Zero } } }
+                             { "Wide2x3", new[,] { { new Complex32(-1.1f, 1), Complex32.Zero, Complex32.Zero }, { Complex32.Zero, new Complex32(1.1f, 1), Complex32.Zero } } },
+                             { "Tallx3",new[,] {  { new Complex32(5.1f,0.0f),Complex32.Zero, Complex32.Zero},{ Complex32.Zero,  new Complex32(-40.0f,0.0f),Complex32.Zero}, {Complex32.Zero,Complex32.Zero, new Complex32(-7.0f,0.0f) } }},
+                             { "Tallx3Negatives", new[,] { {new Complex32(0.0f,0.0f),Complex32.Zero,Complex32.Zero} ,{ Complex32.Zero,new Complex32(1.0f,0.0f),Complex32.Zero}, {Complex32.Zero,Complex32.Zero,new Complex32(1.0f,0.0f)} }}   
+
                          };
 
             TestMatrices = new Dictionary<string, Matrix>();
@@ -378,5 +381,96 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Complex32
             var matrix = TestMatrices["Square3x3"];
             Assert.IsTrue(matrix.IsSymmetric);
         }
+
+        /// <summary>
+        /// Remove Column check to see if it throws <c>InvalidOperationException</c>.
+        /// </summary>
+        [TestCase("Singular3x3")]
+        [TestCase("Square3x3")]
+        public override void CanRemoveColumn(string name)
+        {
+            var testMatrix = CreateMatrix(TestData2D[name]);
+            foreach (int i in testMatrix.ColumnIndices())
+            {
+                Assert.Throws<InvalidOperationException>(() => testMatrix.RemoveColumn(i));
+            }
+        }
+
+        /// <summary>
+        /// Remove Row check to see if it throws <c>InvalidOperationException</c>.
+        /// </summary>
+        [TestCase("Singular3x3")]
+        [TestCase("Square3x3")]
+        public override void CanRemoveRow(string name)
+        {
+            var testMatrix = CreateMatrix(TestData2D[name]);
+
+            foreach (int i in testMatrix.RowIndices())
+            {
+                Assert.Throws<InvalidOperationException>(() => testMatrix.RemoveRow(i));
+            }
+        }
+
+        /// <summary>
+        /// Check to see if it throws <c>InvalidOperationException</c>.
+        /// </summary>
+        [TestCase("Square3x3")]
+        [TestCase("Wide2x3")]
+        public override void CanShuffleMatrixOnColumns(string name)
+        {
+            var testMatrix = CreateMatrix(TestData2D[name]);// TestMatrices[name];
+            Assert.Throws<InvalidOperationException>(() => testMatrix.ShuffleColumns());
+
+        }
+
+
+        /// <summary>
+        /// Check to see if it throws <c>InvalidOperationException</c>.
+        /// </summary>
+        [TestCase("Square3x3")]
+        [TestCase("Wide2x3")]
+        public override void CanShuffleMatrixOnRows(string name)
+        {
+            var testMatrix = CreateMatrix(TestData2D[name]);// TestMatrices[name];
+            Assert.Throws<InvalidOperationException>(() => testMatrix.ShuffleRows());
+
+        }
+
+
+
+        /// <summary>
+        /// Check to see if it throws <c>InvalidOperationException</c>.
+        /// </summary>
+        [TestCase("Singular3x3")]
+        [TestCase("Square3x3")]
+        public override void CanSortMatrixOnColumns(string name)
+        {
+            var testMatrix = CreateMatrix(TestData2D[name]);
+
+            for (int i = 0; i < testMatrix.ColumnCount; i++)
+            {
+                Assert.Throws<InvalidOperationException>(() => testMatrix.SortByColumn(i));
+            }
+
+
+        }
+
+
+        /// <summary>
+        /// Check to see if it throws <c>InvalidOperationException</c>.
+        /// </summary>
+        [TestCase("Singular3x3")]
+        [TestCase("Square3x3")]
+        public override void CanSortMatrixOnRows(string name)
+        {
+            var testMatrix = CreateMatrix(TestData2D[name]);
+
+            for (int i = 0; i < testMatrix.RowCount; i++)
+            {
+                Assert.Throws<InvalidOperationException>(() => testMatrix.SortByRow(i));
+            }
+        }
+
+    
     }
 }

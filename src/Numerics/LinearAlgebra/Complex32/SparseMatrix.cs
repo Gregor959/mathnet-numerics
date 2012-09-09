@@ -46,7 +46,7 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
     public class SparseMatrix : Matrix
     {
         readonly SparseCompressedRowMatrixStorage<Complex32> _storage;
-
+        
         /// <summary>
         /// Gets the number of non zero elements in the matrix.
         /// </summary>
@@ -1457,5 +1457,71 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
 
             return (SparseMatrix)leftSide.Modulus(rightSide);
         }
+
+
+        /// <summary>
+        /// Tests  all the elements of a matrix for a conditon and returns a Matrix with elements of 1.0f where this conditions is true.  
+        /// The condition is given using System.Predicate;
+        /// </summary>
+        /// <param name="matchCondition">System.Predicate. The condition that the matrix elemets are tested for.</param>
+        /// <returns> The resultant Matrix.</returns>
+        /// <exception cref="ArgumentNullException">If matchCondition is <see langword="null" />.</exception>
+        public override Matrix<Complex32> FindMask(Predicate<Complex32> matchCondition)
+        {
+
+            Matrix<Complex32> result = new SparseMatrix(RowCount, ColumnCount);
+
+            for (var i = 0; i < RowCount; i++)
+            {
+                // Get the begin / end index for the current row
+                var startIndex = _storage.RowPointers[i];
+                var endIndex = i < _storage.RowPointers.Length - 1 ? _storage.RowPointers[i + 1] : NonZerosCount;
+
+                for (var j = startIndex; j < endIndex; j++)
+                {
+                    if (matchCondition(_storage.Values[j]))
+                        result.At(i, _storage.ColumnIndices[j], 1.0f);
+
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Tests  all the elements of a matrix for a conditon and returns and <see cref="IEnumerable{Tuple{int,int}}"/> of a Tuple{int,int} 
+        /// of the indeces where this conditions is true.  
+        /// The condition is given using System.Predicate.
+        /// For example to find all elemets >1.0 :    
+        ///    var myFoundIndeces=myMatrix.FindIndices(a => a > 1.0f);
+        ///    foreach( var currentTuple in myFoundIndeces)
+        ///    {
+        ///        Console.WriteLine("Found Indeces: rows{0}, columns{1}",currentTuple.Item1, currentTuple.Item2);
+        //     }
+        /// </summary>
+        /// <param name="matchCondition">System.Predicate. The condition that the matrix elemets are tested for.</param>
+        /// <returns> The request <see cref="IEnumerable{Tuple{int,int}}"/> of the row and column indexes respectivly.</returns>
+        /// <exception cref="ArgumentNullException">If matchCondition is <see langword="null" />.</exception>
+        public override IEnumerable<Tuple<int, int>> FindIndices(Predicate<Complex32> matchCondition)
+        {
+
+            for (var i = 0; i < RowCount; i++)
+            {
+                // Get the begin / end index for the current row
+                var startIndex = _storage.RowPointers[i];
+                var endIndex = i < _storage.RowPointers.Length - 1 ? _storage.RowPointers[i + 1] : NonZerosCount;
+
+                for (var j = startIndex; j < endIndex; j++)
+                {
+                    if (matchCondition(_storage.Values[j]))
+                        yield return new Tuple<int, int>(i, _storage.ColumnIndices[j]);
+
+                }
+            }
+            yield break;
+        }
+
+
+       
+    
     }
 }
