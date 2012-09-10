@@ -1866,6 +1866,180 @@ namespace MathNet.Numerics.LinearAlgebra.Generic
             yield break;
         }
 
+                /// <summary>
+        ///  one based index methods so start counting at 1 instead of 0. Romans did not have a number for 0 so using Roman I to after the same name 
+        ///  of the 0 based index methids for these methods.
+        /// </summary>
+        /// <returns></returns>
+        /////
+
+
+        /// <summary>
+        /// Creates a vector containing specified elements. This methos uses 1 based indexing for the arguments.
+        /// </summary>
+        /// <param name="index">The first element to begin copying from.</param>
+        /// <param name="length">The number of elements to copy.</param>
+        /// <returns>A vector containing a copy of the specified elements.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><list><item>If <paramref name="index"/> is not positive or
+        /// greater than or equal to the size of the vector.</item>
+        /// <item>If <paramref name="IIndex"/> + <paramref name="length"/> is greater than the size of the vector.</item>
+        /// </list></exception>
+        /// <exception cref="ArgumentException">If <paramref name="length"/> is not positive.</exception>
+        public virtual Vector<T> SubVectorI(int IIndex, int length)
+        {
+            int index = IIndex - 1; //convert to 0 based indexing and carry on as per 0 based indexing method SubVector.
+            return SubVector(index, length);
+        }
+
+
+
+        /// <summary>
+        /// Updates specified elements of the Vector. Uses 1 based indexing.
+        /// </summary>
+        /// <param name="index">The first element to begin copying from, using 1 based indexing.</param>
+        /// <param name="length">The number of elements to copy.</param>
+        /// <exception cref="ArgumentOutOfRangeException"><list><item>If <paramref name="index"/> is not positive or
+        /// greater than or equal to the size of the vector.</item>
+        /// <item>If <paramref name="index"/> + <paramref name="length"/> is greater than the size of the vector.</item>
+        /// </list></exception>
+        /// <exception cref="ArgumentException">If <paramref name="length"/> is not positive.</exception>
+        public virtual void SetSubVectorI(int IIndex, int length, Vector<T> subVector)
+        {
+            SetSubVector(IIndex - 1, length, subVector);
+        }
+
+        /// <summary>
+        /// Updates specified elements of the Vector with the other vector's elements.
+        /// </summary>
+        /// <param name="index">The first element to begin copying from, using 1 based indexing.</param>
+        /// <param name="vectorToCopyFrom">The vector to copy from .</param>
+        /// <exception cref="ArgumentOutOfRangeException"><list><item>If <paramref name="index"/> is not positive or
+        /// greater than or equal to the size of the vector.</item>
+        /// <item>If <paramref name="index"/> + <paramref name="vectorToCopyFrom"/> 'size  is greater than the size of the vector.</item>
+        public virtual void SetSubVectorI(int IIndex, Vector<T> vectorToCopyFrom)
+        {
+            SetSubVector(IIndex-1, vectorToCopyFrom.Count, vectorToCopyFrom);
+        }
+
+
+        /// <summary>
+        /// same as MinimumIndex but using 1 based index.
+        /// </summary>
+        /// <returns></returns>
+        public int MinimumIndexI()
+        {
+            int zeroBasedIndex= MinimumIndex();
+            return zeroBasedIndex++;
+        }
+
+        public int MaximumIndexI()
+        {
+            int zeroBasedIndex = MaximumIndex();
+            return zeroBasedIndex++;
+        }
+
+        public int AbsoluteMinimumIndexI()
+        {
+            int zeroBasedIndex = AbsoluteMinimumIndex();
+            return zeroBasedIndex++;
+        }
+        
+        public  int AbsoluteMaximumIndexI()
+        {
+            int zeroBasedIndex = AbsoluteMaximumIndex();
+            return zeroBasedIndex++;
+        }
+
+        /// <summary>
+        /// returns the element of the vector using 1 based Index. No range checking.
+        /// </summary>
+        /// <param name="IIndex"> the IIndex using 1 based indexing</param>
+        /// <returns> the element at that position.</returns>
+        public T AtI(int IIndex)
+        {
+            return At(IIndex - 1);
+        }
+
+        /// <summary>
+        /// Sets the element of the vector using 1 based Index. No range checking.
+        /// </summary>
+        /// <param name="IIndex"> the IIndex using 1 based indexing</param>
+        /// <param name="value"> the value to which to se the element to </param>
+        public void AtI(int IIndex, T value)
+        {
+            At(IIndex - 1, value);
+        }
+
+
+        /// <summary>
+        /// Tests  all the elements of a given Vector  for a conditon and returns an <see cref="IEnumerable{T}"/> of indeces (1 based) where this conditions is true.  
+        /// The condition is given using System.Predicate;
+        /// </summary>
+        /// <param name="matchCondition">System.Predicate. The condition that the Vector elements are tested for.</param>
+        /// <returns> The resultant <see cref="IEnumerable{T}"/> of ints where the Predicate is true , using  1 based indexing.</returns>
+        /// <exception cref="ArgumentNullException">If matchCondition is <see langword="null" />.</exception>
+        public virtual IEnumerable<int> FindIndicesI(Predicate<T> matchCondition)
+        {
+            if (matchCondition == null) throw new ArgumentNullException("matchCondition");
+
+            for (var index = 0; index < Count; index++)
+            {
+                if (matchCondition(At(index)))
+                {
+                    yield return index+1;
+                }
+            }
+
+            yield break;
+        }
+
+
+        /// <summary>
+        /// For each int in an enumerable of ints set all the elements of the given Vector to a specified value.
+        /// Uses 1 based indexing.
+        /// </summary>
+        /// <param name="indxs">The enumerables of ints, 1 based indexing</param>
+        /// <param name="value">The value to set the Elements to.</param>
+        /// <exception cref="ArgumentNullException">If indxs is <see langword="null" />.</exception>
+        public virtual void SetOnIndecesI(IEnumerable<int> indxs, T value)
+        {
+            if (indxs == null) throw new ArgumentNullException("indxs");
+
+            foreach (int i in indxs)
+            {
+                this[i-1] = value;
+            }
+        }
+
+        /// <summary>
+        /// For each int in an enumerable of ints applies a function to the given Vector and sets the elements to the outcome of the function.
+        /// Uses 1 based indexing.
+        /// </summary>
+        /// <param name="indxs">The enumerables of ints, 1 based indexing</param>
+        /// <param name="fun"> The function </param>
+        /// <exception cref="ArgumentNullException">If indxs is <see langword="null" />.</exception>
+        public virtual void ApplyOnIndecesI(IEnumerable<int> indxs, Func<T, T> fun)
+        {
+            if (indxs == null) throw new ArgumentNullException("indxs");
+
+            foreach (int i in indxs)
+            {
+                this[i-1] = fun(this[i-1]);
+            }
+        }
+
+        /// <summary>
+        /// Returns an <see cref="IEnumerator{int}"/> that enumerates over the vectors  indices using 1 based counting. 1..Count
+        /// </summary>
+        /// <returns>An <see cref="IEnumerator{int}"/> that enumerates over the vectors indices, using 1 based counting. 1...Count.</returns>
+        public IEnumerable<int> IndicesI()
+        {
+            for (int i = 0; i < Count; i++)
+            {
+                yield return i+1;
+            }
+            yield break;
+        }
 
         
   }

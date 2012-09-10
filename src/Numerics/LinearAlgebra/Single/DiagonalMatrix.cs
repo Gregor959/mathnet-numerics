@@ -1390,7 +1390,34 @@ namespace MathNet.Numerics.LinearAlgebra.Single
         }
 
 
-      
+        /// <summary>
+        /// Tests  all the elements of a matrix for a conditon and returns and <see cref="IEnumerable{Tuple{int,int}}"/> of a Tuple{int,int} 
+        /// of the indeces where this conditions is true.  1 based indexing.
+        /// The condition is given using System.Predicate.
+        /// For example to find all elemets >1.0 :    
+        ///    var myFoundIndeces=myMatrix.FindIndicesI(a => a > 1.0f);
+        ///    foreach( var currentTuple in myFoundIndeces)
+        ///    {
+        ///        Console.WriteLine("Found Indeces 1 based: Irows{0}, Icolumns{1}",currentTuple.Item1, currentTuple.Item2);
+        //     }
+        /// </summary>
+        /// <param name="matchCondition">System.Predicate. The condition that the matrix elemets are tested for.</param>
+        /// <returns> The request <see cref="IEnumerable{Tuple{int,int}}"/> of the row and column indexes respectivly.</returns>
+        /// <exception cref="ArgumentNullException">If matchCondition is <see langword="null" />.</exception>
+        public override IEnumerable<Tuple<int, int>> FindIndicesI(Predicate<float> matchCondition)
+        {
+            if (matchCondition == null) throw new ArgumentNullException("matchCondition");
+
+            for (var row = 0; row < RowCount; row++)
+            {
+                if (matchCondition(this._data[row]))
+                {
+                    yield return new Tuple<int, int>(row + 1, row + 1);
+                }
+            }
+            yield break;
+        }
+
 
 
     }

@@ -33,6 +33,8 @@ namespace MathNet.Numerics
     using System;
     using Properties;
 
+    using System.Collections.Generic;
+
     /// <summary>
     /// Class to represent a permutation for a subset of the natural numbers.
     /// </summary>
@@ -201,5 +203,50 @@ namespace MathNet.Numerics
 
             return true;
         }
+
+
+        /// <summary>
+        /// 1 based index on a permuation so if the permuation in 0 based array is [4,2,0,1,3] in I-based elements is {5,3,1,2,4}
+        /// elemI(1)=5, elemI(2)=3, elemI(3)=1, elemI(4)=2, elemI(5)=4
+        /// </summary>
+        /// <param name="IIndex"></param>
+        /// <returns></returns>
+        int ElemI(int IIndex)
+        {
+            if (IIndex <= 0 || IIndex > _indices.Length) throw new ArgumentOutOfRangeException("One based IIndex out of Range.");
+            return _indices[IIndex - 1] + 1;
+        }
+
+
+        /// <summary>
+        /// Returns an Enumerable of the elements of the Permutations. THis can be placed in a list using ToList().
+        /// and then if the List contains elements (1,0,2) means index 0 permutes to 1 , index to premutes to 0 and index 2 permutes to 2. 
+        /// </summary>
+        /// <returns>The IEnumerable of ints.</returns>
+        IEnumerable<int> Elements()
+        {
+            foreach (int element in this._indices)
+            {
+                yield return element;
+            }
+            yield break;
+        }
+
+
+        /// <summary>
+        /// Returns an Enumerable of the elements of the Permutations using 1 based indexing. So if the returned elements are  2,1,3 means 
+        /// first element permutes to postion 2, second element to position 1 and third element to position 3.
+        /// </summary>
+        /// <returns>The IEnumerable of ints, using 1 based indexing.</returns>
+        IEnumerable<int> ElementsI()
+        {
+            foreach (int element in this._indices)
+            {
+                yield return element + 1;
+            }
+            yield break;
+        }
+
+    
     }
 }

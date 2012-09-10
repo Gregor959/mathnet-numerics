@@ -2154,6 +2154,480 @@ namespace MathNet.Numerics.LinearAlgebra.Generic
             SetSubMatrix(rowIndex, numberOfRows, 0, ColumnCount, aMatrix);
         }
 
+        // 1 based index extension. So columns, rows count 1,2,3... instead of 0,1,2,3.
+        // I stand for Roman I. Romans did not have a number for 0 and there first number was roman 1 or I.
+
+
+        /// <summary>
+        ///  Retrieves the requested element without range checking.
+        ///  The same as At(..) but using 1 based indexing. 
+        /// </summary>
+        /// <param name="IRowIndex">The row of the element using 1 based indexing.</param>
+        /// <param name="IColumnIndex">he column of the element using 1 based indexing. </param>
+        /// <returns>The requested element</returns>
+        public T AtI(int IRowIndex, int IColumnIndex)
+        {
+            return At(IRowIndex - 1, IColumnIndex - 1);
+        }
+
+        /// <summary>
+        /// Sets the value of the given element. The same as At(..,T value) but using 1 based indexing
+        /// </summary>
+        /// <param name="IRowIndex">The row of the element using 1 based indexing.</param>
+        /// <param name="IColumnIndex">The colum of the element using 1 based indexing.</param>
+        /// <param name="value">The value to set the element to.</param>
+        public void AtI(int IRowIndex, int IColumnIndex, T value)
+        {
+            At(IRowIndex - 1, IColumnIndex - 1, value);
+        }
+
+        /// <summary>
+        /// Copies a row into an Vector. Thee same as Row(int ) but using 1 based indexing.
+        /// </summary>
+        /// <param name="IRowIndex">The row to copy to using 1 based indexing.</param>
+        /// <returns>A Vector containing the copied elements.</returns>
+        public Vector<T> RowI(int IRowIndex)
+        {
+            return this.Row(IRowIndex - 1);
+        }
+
+
+        /// <summary>
+        /// Copies a row into to the given Vector. Same as Row(..) but using 1 based indexing.
+        /// </summary>
+        /// <param name="IIndex">The row to copy using 1 based indexing.</param>
+        /// <param name="result">The Vector to copy the row into.</param>
+        public void RowI(int IIndex, Vector<T> result)
+        {
+            Row(IIndex - 1, 0, ColumnCount, result);
+        }
+
+        /// <summary>
+        /// Copies the requested row elements into a new Vector. Same as method Row with same parameters but using 1 based indexing.
+        /// </summary>
+        /// <param name="IRowIndex">The row to copy elements from. using 1 based indexing</param>
+        /// <param name="IColumnIndex">The column to start copying from but ising 1 based indexing.</param>
+        /// <param name="length">The number of elements to copy.</param>
+        /// <returns>A Vector containing the requested elements.</returns>
+        public Vector<T> RowI(int IRowIndex, int IColumnIndex, int length)
+        {
+            var ret = CreateVector(length);
+            Row(IRowIndex - 1, IColumnIndex - 1, length, ret);
+            return ret;
+        }
+
+
+        /// <summary>
+        /// Copies the requested row elements into a new Vector. Same as method Row with same paramter signiture but using 1 based indexing.
+        /// </summary>
+        /// <param name="IRowIndex">The row to copy elements from, using 1 based indexing.</param>
+        /// <param name="IColumnIndex">The column to start copying from , using 1 based indexing.</param>
+        /// <param name="length">The number of elements to copy.</param>
+        /// <param name="result">The Vector to copy the column into.</param>
+        public void RowI(int IRowIndex, int IColumnIndex, int length, Vector<T> result)
+        {
+            Row(IRowIndex - 1, IColumnIndex - 1, length, result);
+        }
+
+        /// <summary>
+        /// Copies the requested column into a new Vector. Uses 1 based indexing for the column parameter.
+        /// </summary>
+        /// <param name="IColumnIndex">The column to copy elements from using 1 based indexing.</param>
+        /// <returns>A Vector containing the requested elements.</returns>
+        public Vector<T> ColumnI(int IIndex)
+        {
+            var result = CreateVector(RowCount);
+            Column(IIndex - 1, 0, RowCount, result);
+            return result;
+        }
+
+        /// <summary>
+        /// Copies the requested column into the given vector. uses 1 based indexing for the IIndex Parameter..
+        /// </summary>
+        /// <param name="IIndex">The column to copy elements from, 1 based indexing.</param>
+        /// <param name="result">The Vector to copy the column into.</param>
+        public void ColumnI(int IIndex, Vector<T> result)
+        {
+            Column(IIndex - 1, 0, RowCount, result);
+        }
+
+        /// <summary>
+        /// Copies the requested column elements into a new Vector. Uses 1 based indexing for the parameters.
+        /// </summary>
+        /// <param name="IColumnIndex">The column to copy elements from using 1 based indexing.</param>
+        /// <param name="IRowIndex">The row to start copying from using 1 based indexing.</param>
+        /// <param name="length">The number of elements to copy.</param>
+        /// <returns>A Vector containing the requested elements.</returns>
+        public Vector<T> ColumnI(int IColumnIndex, int IRowIndex, int length)
+        {
+            var result = CreateVector(length);
+            Column(IColumnIndex - 1, IRowIndex - 1, length, result);
+            return result;
+        }
+
+        /// <summary>
+        /// Copies the requested column elements into the given vector. uses 1 based indexing.
+        /// </summary>
+        /// <param name="IColumnIndex">The column to copy elements from, 1 based indexing.</param>
+        /// <param name="IRowIndex">The row to start copying from, 1 based indexing.</param>
+        /// <param name="length">The number of elements to copy.</param>
+        /// <param name="result">The Vector to copy the column into.</param>
+        public void ColumnI(int IColumnIndex, int IRowIndex, int length, Vector<T> result)
+        {
+            Column(IColumnIndex - 1, IRowIndex - 1, length, result);
+        }
+
+        /// <summary>
+        /// Creates a new matrix and inserts the given column at the given index, using 1 based indexing.
+        /// </summary>
+        /// <param name="IColumnIndex">The index of where to insert the column, 1 based indexing.</param>
+        /// <param name="column">The column to insert.</param>
+        /// <returns>A new matrix with the inserted column.</returns>
+        public Matrix<T> InsertColumnI(int IColumnIndex, Vector<T> column)
+        {
+            return InsertColumn(IColumnIndex - 1, column);
+        }
+
+        /// <summary>
+        /// Copies the values of the given array to the specified column, using 1 based indexing
+        /// </summary>
+        /// <param name="IColumnIndex">The column to copy the values to, using 1 based indexing.</param>
+        /// <param name="column">The array to copy the values from.</param>
+        public void SetColumnI(int IColumnIndex, T[] column)
+        {
+            SetColumn(IColumnIndex - 1, column);
+        }
+
+        /// <summary>
+        /// Copies the values of the given Vector to the specified column, using 1 based indexing for IColumnIndex.
+        /// </summary>
+        /// <param name="IColumnIndex">The column to copy the values to, using 1 based indexing</param>
+        /// <param name="column">The vector to copy the values from.</param>
+        public void SetColumnI(int IColumnIndex, Vector<T> column)
+        {
+            SetColumn(IColumnIndex - 1, column);
+        }
+
+
+        /// <summary>
+        /// Creates a new matrix and inserts the given row at the given index, using 1 based indexing.
+        /// </summary>
+        /// <param name="IRowIndex">The index of where to insert the row, using 1 based indexing</param>
+        /// <param name="row">The row to insert.</param>
+        /// <returns>A new matrix with the inserted Row.</returns>
+        public Matrix<T> InsertRowI(int IRowIndex, Vector<T> row)
+        {
+            return InsertRow(IRowIndex - 1, row);
+        }
+
+
+        /// <summary>
+        /// Copies the values of the given Vector to the specified row, using 1 based indexing for the IRowIndex parameter.
+        /// </summary>
+        /// <param name="IRowIndex">The row to copy the values to, using 1 based indexing.</param>
+        /// <param name="row">The vector to copy the values from.</param>
+        public void SetRowI(int IRowIndex, Vector<T> row)
+        {
+            SetRow(IRowIndex - 1, row);
+        }
+
+        /// <summary>
+        /// Copies the values of the given array to the specified row, using 1 based indexing for the parameter IRowIndex.
+        /// </summary>
+        /// <param name="IRowIndex">The row to copy the values to, using 1 based indexing.</param>
+        /// <param name="row">The array to copy the values from.</param>
+        public void SetRowI(int IRowIndex, T[] row)
+        {
+            SetRow(IRowIndex - 1, row);
+        }
+
+        /// <summary>
+        /// Creates a matrix that contains the values from the requested sub-matrix, using 1 based indexing.
+        /// </summary>
+        /// <param name="IRowIndex">The row to start copying from, using 1 based indexing, must be greater than zero.</param>
+        /// <param name="rowLength">The number of rows to copy, using 1 based indexing. Must be positive.</param>
+        /// <param name="IColumnIndex">The column to start copying from, using 1 based indexing. Must be positive.</param>
+        /// <param name="columnLength">The number of columns to copy. Must be positive.</param>
+        /// <returns>The requested sub-matrix.</returns>
+        public Matrix<T> SubMatrixI(int IRowIndex, int rowLength, int IColumnIndex, int columnLength)
+        {
+            return SubMatrix(IRowIndex - 1, rowLength, IColumnIndex - 1, columnLength);
+        }
+
+        /// <summary>
+        /// Copies the values of a given matrix into a region in this matrix, using 1 based indexing for the row and column indices.
+        /// </summary>
+        /// <param name="IRowIndex">The row to start copying to, using 1 based indexing. Must be postive.</param>
+        /// <param name="rowLength">The number of rows to copy. Must be positive.</param>
+        /// <param name="IColumnIndex">The column to start copying to, using 1 based indexing, must be positive.</param>
+        /// <param name="columnLength">The number of columns to copy. Must be positive.</param>
+        /// <param name="subMatrix">The sub-matrix to copy from.</param>
+        public void SetSubMatrixI(int IRowIndex, int rowLength, int IColumnIndex, int columnLength, Matrix<T> subMatrix)
+        {
+            SetSubMatrix(IRowIndex - 1, rowLength, IColumnIndex - 1, columnLength, subMatrix);
+        }
+
+        /// <summary>
+        /// Creates a matrix which is a submatrix from this one selecting the columns of a specific range and all the rows. 
+        /// Uses 1 based indexing.
+        /// </summary>
+        /// <param name="IcolumnIndex">The index at which to start copying the columns, using 1 based indexing.</param>
+        /// <param name="columnLength">The number of columns to copy.</param>
+        /// <returns>The requested Matrix.</returns>
+        public virtual Matrix<T> SelectColumnsI(int IcolumnIndex, int columnLength)
+        {
+            return SubMatrix(0, RowCount, IcolumnIndex - 1, columnLength);
+        }
+
+        /// <summary>
+        /// Creates a matrix which is a submatrix from this one selecting the columns of a specific range and all the rows. 
+        /// Uses 1 based indexing.
+        /// </summary>
+        /// <param name="IrowIndex">he index at which to start copying the rows, using 1 based indexing.</param>
+        /// <param name="rowLength">The number of rows to copy.</param>
+        /// <returns>The requested Matrix.</returns>
+        public virtual Matrix<T> SelectRowsI(int IrowIndex, int rowLength)
+        {
+            return SubMatrix(IrowIndex - 1, rowLength, 0, ColumnCount);
+
+        }
+
+
+        /// <summary>
+        /// Copies the values of a given matrix into a region in this matrix. Copies all the rows and selected columns.
+        /// Uses 1 based indxing, otherwise the same as SetColumns(..
+        /// </summary>
+        /// <param name="IcolumnIndex">The first columns to start copying to. Used 1 based indexing.</param>
+        /// <param name="columnLength">The number of columns to copy.</param>
+        /// <param name="aMatrix">The matrix top copy from.</param>
+        public virtual void SetColumnsI(int IcolumnIndex, int columnLength, Matrix<T> aMatrix)
+        {
+            SetSubMatrix(0, RowCount, IcolumnIndex - 1, columnLength, aMatrix);
+        }
+
+        /// <summary>
+        /// Copies the values of a given matrix into a region in this matrix. Copies all the columns and selected rows.
+        /// Uses 1 based indxing, otherwise the same as SetRows(..
+        /// </summary>
+        /// <param name="IrowIndex">The first rows to start copying to. Used 1 based indexing.</param>
+        /// <param name="rowLength">The number of rows to copy.</param>
+        /// <param name="aMatrix">THe matrix to copy from.</param>
+        public virtual void SetRowsI(int IrowIndex, int rowLength, Matrix<T> aMatrix)
+        {
+            SetSubMatrix(IrowIndex - 1, rowLength, 0, ColumnCount, aMatrix);
+        }
+
+
+
+
+
+        /// <summary>
+        /// Returns an <see cref="IEnumerable{T}"/> that enumerates over the matrix columns.Uses 1 based indexing to label the columns.
+        /// </summary>
+        /// <param name="IIndex">The index of the column to start enumerate from , using 1 based indexing </param>
+        /// <param name="length">The number of columns to enumerate </param>
+        /// <returns>An <see cref="IEnumerable{T}"/> that enumerates over the matrix columns</returns>
+        /// <see also cref="IEnumerable{T}" and ColumnEnumerator/>
+        /// <exception cref="ArgumentOutOfRangeException">If <paramref name="IIndex"/> is negative,
+        /// or greater than or equal to the number of columns.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">If <b> Index+length greater than this matrixes columnCount</b>.</exception>
+        public IEnumerable<Tuple<int, Vector<T>>> ColumnEnumeratorI(int IIndex, int length)
+        {
+            int index = IIndex - 1;
+            if (index >= ColumnCount || index < 0)
+            {
+                throw new ArgumentOutOfRangeException("index");
+            }
+
+            if (index + length > ColumnCount)
+            {
+                throw new ArgumentOutOfRangeException("length");
+            }
+
+            if (length < 1)
+            {
+                throw new ArgumentException(Resources.ArgumentMustBePositive, "length");
+            }
+
+            var maxIndex = index + length;
+            for (var i = index; i < maxIndex; i++)
+            {
+                yield return new Tuple<int, Vector<T>>(i + 1, Column(i));
+            }
+        }
+
+
+        /// <summary>
+        /// Returns an <see cref="IEnumerable{T}"/> that enumerates over the matrix rows.Uses 1 based indexing to label the rows.
+        /// </summary>
+        /// <param name="IIndex">The index of the row to start enumerate from , using 1 based indexing </param>
+        /// <param name="length">The number of rows to enumerate </param>
+        /// <returns>An <see cref="IEnumerable{T}"/> that enumerates over the matrix columns</returns>
+        /// <see also cref="IEnumerable{T}" and ColumnEnumerator/>
+        /// <exception cref="ArgumentOutOfRangeException">If <paramref name="IIndex"/> is negative,
+        /// or greater than or equal to the number of columns.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">If <b> IIndex+length greater than this matrixes RowCount</b>.</exception>
+        public IEnumerable<Tuple<int, Vector<T>>> RowEnumeratorI(int IIndex, int length)
+        {
+            int index = IIndex - 1;
+
+            if (index >= RowCount || index < 0)
+            {
+                throw new ArgumentOutOfRangeException("index");
+            }
+
+            if (index + length > RowCount)
+            {
+                throw new ArgumentOutOfRangeException("length");
+            }
+
+            if (length < 1)
+            {
+                throw new ArgumentException(Resources.ArgumentMustBePositive, "length");
+            }
+
+            var maxi = index + length;
+            for (var i = index; i < maxi; i++)
+            {
+                yield return new Tuple<int, Vector<T>>(i + 1, Row(i));
+            }
+
+        }
+
+
+        /// <summary>
+        /// Sort the columns of the matrix by a specific row using 1 based index and also returns the Permuation , 
+        /// which can be used to arrange the Columns of other matrices in the same order.
+        /// E.g Sorting Matrix myMatrix on Row 2: 
+        /// myPermuation = myMatrix.SortByRowI(2); 
+        /// Would use 
+        /// otherMatrix.PermuteColumns(myPermuation); to sort otherMatrix in the same order. 
+        /// To get the Sorting order of 1 based index as the Matlab, Octave sort method [a,ind] = Sort(myVector),
+        /// the vector 'ind's entries are equivalent to the entries of the IEnumerable : myPermutation.Inverse().ElementsI()
+        /// To get a 0 based indices instead of 1 based indexes use myPermutation.Inverse().Elements().
+        /// </summary>
+        /// <param name="IRowIndex">The row to sort the matrix by, 1 based indexing.</param>
+        /// <returns>The Permutation.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">If <paramref name="IRowIndex"/> is negative,
+        /// or greater than or equal to the number of rows.</exception>
+        public Permutation SortByRowI(int IRowIndex)
+        {
+            Permutation zerobased = this.SortByRow(IRowIndex - 1);
+            return zerobased;
+        }
+
+
+        /// <summary>
+        /// Sort the rows of the matrix by a specific column using 1 based index and also returns the Permuation , 
+        /// which can be used to arrange the Columns of other matrices in the same order.
+        /// E.g Sorting Matrix myMatrix on Row 2: 
+        /// myPermuation = myMatrix.SortByRowI(2); 
+        /// Would use 
+        /// otherMatrix.PermuteRows(myPermuation); to sort otherMatrix in the same order. 
+        /// To get the Sorting order of 1 based index as the Matlab, Octave sort method [a,ind] = Sort(myVector),
+        /// the vector 'ind's entries are equivalent to the entries of the IEnumerable : myPermutation.Inverse().ElementsI()
+        /// To get a 0 based indices instead of 1 based indexes use myPermutation.Inverse().Elements().
+        /// </summary>
+        /// <param name="IColumnIndex">The Column to sort the matrix by using 1 based indexing.</param>
+        /// <returns>The permutation.</returns>
+        /// <exception cref="ArgumentOutOfRangeException">If <paramref name="IColumnIndex"/> is negative,
+        /// or greater than or equal to the number of columns.</exception>
+        public Permutation SortByColumnI(int IColumnIndex)
+        {
+            Permutation zerobased = this.SortByColumn(IColumnIndex - 1);
+            return zerobased;
+        }
+
+        /// <summary>
+        /// Creates a new Matrix with a Column removed.Uses 1 based Index.
+        /// </summary>
+        /// <param name="IcolumnIndex">The column to remove in the copy. Uses 1 based Index.</param>
+        /// <returns>The resultant Matrix with the Column removed</returns>
+        public Matrix<T> RemoveColumnI(int IcolumnIndex)
+        {
+            return RemoveColumn(IcolumnIndex - 1);
+        }
+
+        /// <summary>
+        /// Creates a new Matrix with Row RowIndex removed. Uses 1 based Index.
+        /// </summary>
+        /// <param name="IrowIndex">The row to remove in the copy. Uses 1 based Index.</param>
+        /// <returns>The resultant Matrix with the row removed</returns>
+        public Matrix<T> RemoveRowI(int IrowIndex)
+        {
+            return RemoveRow(IrowIndex - 1);
+        }
+
+
+        /// <summary>
+        /// Creates a new Matrix with Row and Column of IIndex removed. Uses 1 based Index.
+        /// </summary>
+        /// <param name="IIndex"> 1 based Index of the row and column to remove.</param>
+        /// <returns>The resultant Matrix with the row and column removed</returns>
+        public Matrix<T> RemoveRowIAndColumnI(int IIndex)
+        {
+            return RemoveRowAndColumn(IIndex - 1);
+        }
+
+        /// <summary>
+        /// Tests  all the elements of a matrix for a conditon and returns and <see cref="IEnumerable{Tuple{int,int}}"/> of a Tuple{int,int} 
+        /// of the indices where this conditions is true.  1 based indexing.
+        /// The condition is given using System.Predicate.
+        /// For example to find all elemets >1.0 :    
+        ///    var myFoundindices=myMatrix.FindIndicesI(a => a > 1.0);
+        ///    foreach( var currentTuple in myFoundindices)
+        ///    {
+        ///        Console.WriteLine("Found indices 1 based: Irows{0}, Icolumns{1}",currentTuple.Item1, currentTuple.Item2);
+        //     }
+        /// </summary>
+        /// <param name="matchCondition">System.Predicate. The condition that the matrix elemets are tested for.</param>
+        /// <returns> The request <see cref="IEnumerable{Tuple{int,int}}"/> of the row and column indexes respectivly.</returns>
+        /// <exception cref="ArgumentNullException">If matchCondition is <see langword="null" />.</exception>
+        public virtual IEnumerable<Tuple<int, int>> FindIndicesI(Predicate<T> matchCondition)
+        {
+            if (matchCondition == null) throw new ArgumentNullException("matchCondition");
+
+            for (var column = 0; column < ColumnCount; column++)
+            {
+                for (var row = 0; row < RowCount; row++)
+                {
+                    if (matchCondition(At(row, column)))
+                    {
+                        yield return new Tuple<int, int>(row + 1, column + 1);
+                    }
+                }
+            }
+            yield break;
+        }
+
+
+
+        /// <summary>
+        /// Returns an <see cref="IEnumerator{int}"/> that enumerates over the matrix row indices using 1 based indices:  1..RowCount
+        /// </summary>
+        /// <returns>An <see cref="IEnumerator{int}"/> that enumerates over the matrix row indices 1 based</returns>
+        public IEnumerable<int> RowIndicesI()
+        {
+            for (int i = 0; i < RowCount; i++)
+            {
+                yield return i + 1;
+            }
+            yield break;
+        }
+
+
+        /// <summary>
+        /// Returns an <see cref="IEnumerator{int}"/> that enumerates over the matrix column indices usung 1 based indices 1..ColumnCount
+        /// </summary>
+        /// <returns>An <see cref="IEnumerator{int}"/> that enumerates over the matrix column indices 1 based.</returns>
+        public IEnumerable<int> ColumnIndicesI()
+        {
+            for (int i = 0; i < ColumnCount; i++)
+            {
+                yield return i + 1;
+            }
+            yield break;
+        }
 
 
     }
