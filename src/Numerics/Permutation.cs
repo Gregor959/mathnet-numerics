@@ -211,7 +211,7 @@ namespace MathNet.Numerics
         /// </summary>
         /// <param name="IIndex"></param>
         /// <returns></returns>
-        int ElemI(int IIndex)
+        public int ElemI(int IIndex)
         {
             if (IIndex <= 0 || IIndex > _indices.Length) throw new ArgumentOutOfRangeException("One based IIndex out of Range.");
             return _indices[IIndex - 1] + 1;
@@ -223,7 +223,7 @@ namespace MathNet.Numerics
         /// and then if the List contains elements (1,0,2) means index 0 permutes to 1 , index to premutes to 0 and index 2 permutes to 2. 
         /// </summary>
         /// <returns>The IEnumerable of ints.</returns>
-        IEnumerable<int> Elements()
+        public IEnumerable<int> Elements()
         {
             foreach (int element in this._indices)
             {
@@ -238,7 +238,7 @@ namespace MathNet.Numerics
         /// first element permutes to postion 2, second element to position 1 and third element to position 3.
         /// </summary>
         /// <returns>The IEnumerable of ints, using 1 based indexing.</returns>
-        IEnumerable<int> ElementsI()
+        public IEnumerable<int> ElementsI()
         {
             foreach (int element in this._indices)
             {
