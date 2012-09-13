@@ -2001,7 +2001,7 @@ namespace MathNet.Numerics.LinearAlgebra.Generic
         /// <param name="indxs">The enumerables of ints, 1 based indexing</param>
         /// <param name="value">The value to set the Elements to.</param>
         /// <exception cref="ArgumentNullException">If indxs is <see langword="null" />.</exception>
-        public virtual void SetOnIndecesI(IEnumerable<int> indxs, T value)
+        public virtual void SetOnIndicesI(IEnumerable<int> indxs, T value)
         {
             if (indxs == null) throw new ArgumentNullException("indxs");
 
@@ -2018,7 +2018,7 @@ namespace MathNet.Numerics.LinearAlgebra.Generic
         /// <param name="indxs">The enumerables of ints, 1 based indexing</param>
         /// <param name="fun"> The function </param>
         /// <exception cref="ArgumentNullException">If indxs is <see langword="null" />.</exception>
-        public virtual void ApplyOnIndecesI(IEnumerable<int> indxs, Func<T, T> fun)
+        public virtual void ApplyOnIndicesI(IEnumerable<int> indxs, Func<T, T> fun)
         {
             if (indxs == null) throw new ArgumentNullException("indxs");
 
