@@ -2072,7 +2072,6 @@ namespace MathNet.Numerics.LinearAlgebra.Generic
                            from keeps in keep
                            where (elem.Item1 == keeps)
                            select elem.Item2;
-            throw new NotSupportedException("test this first SelectElements");
 
             return selected.ToArray();
         }
@@ -2084,7 +2083,6 @@ namespace MathNet.Numerics.LinearAlgebra.Generic
                            from keeps in keepI
                            where (elem.Item1 == keeps)
                            select elem.Item2;
-            throw new NotSupportedException("test this first SelectElementsI");
 
             return selected.ToArray();
         }

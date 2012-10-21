@@ -28,6 +28,10 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Double
 {
     using NUnit.Framework;
     using System;
+    using System.Collections.Generic;
+    using System.Collections;
+    using System.Linq;
+
     /// <summary>
     /// Abstract class with the common set of matrix tests
     /// </summary>
@@ -563,6 +567,81 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Double
 
             Assert.AreEqual(rowsM, matrixCombined);
 
+        }
+
+        /// <summary>
+        /// Test wether we can forma a new matrix which is a selection of Columns of a matrix 
+        /// </summary>
+        /// <param name="rowIndex">the row Index to start from </param>
+        /// <param name="numberOfRows">The number of Rows</param>
+        /// <param name="everyNth"> e.g. every one (1) , every 2nd (2)</param>
+        /// <param name="name"></param>
+        [TestCase(0, 3, 2, "Singular3x3")]
+        [TestCase(0, 3, 1, "Square3x3")]
+        [TestCase(1, 2, 1, "Square3x3")]
+        [TestCase(0, 2, 1, "Square3x3")]
+        public void CanSelectColumnsFromIEnumerable(int columnIndex, int numberOfColumns, int everyNth, string name)
+        {
+            IEnumerable<int> indexes = from elem in Enumerable.Range(columnIndex, numberOfColumns) where ((elem - columnIndex) % everyNth == 0) select elem;
+            if (indexes.ToList().Count >= 1)
+            {
+                var matrix = TestMatrices[name];
+                var columnsM = matrix.SelectColumns(indexes);
+
+                var columnFirst = matrix.Column(columnIndex);
+                var matrixCombined = columnFirst.ToColumnMatrix();
+
+                for (int i = 1; i < numberOfColumns; i++)
+                {
+                    if (i % everyNth == 0)
+                    {
+
+                        var columni = matrix.Column(columnIndex + i);
+                        matrixCombined = matrixCombined.Append(columni.ToColumnMatrix());
+                    }
+                }
+
+                Assert.AreEqual(columnsM, matrixCombined);
+            }
+        }
+
+
+
+        /// <summary>
+        /// Test wether we can forma a new matrix which is a selection of Rows of a matrix 
+        /// </summary>
+        /// <param name="rowIndex">the row Index to start from </param>
+        /// <param name="numberOfRows">The number of Rows</param>
+        /// <param name="everyNth"> e.g. every one (1) , every 2nd (2)</param>
+        /// <param name="name"></param>
+        [TestCase(0, 3, 2, "Singular3x3")]
+        [TestCase(0, 3, 1, "Square3x3")]
+        [TestCase(1, 2, 1, "Square3x3")]
+        [TestCase(0, 2, 1,"Square3x3")]
+        public void CanSelectRowsFromIEnumerable(int rowIndex, int numberOfRows,int everyNth, string name)
+        {
+            var matrix = TestMatrices[name];
+            IEnumerable<int> indexes = from elem in Enumerable.Range(rowIndex,numberOfRows) where( (elem-rowIndex) % everyNth ==0) select elem;
+            if (indexes.ToList().Count >= 1)
+            {
+                var rowsM = matrix.SelectRows(indexes);
+
+                //make the first Row the Row rowIndex
+                var rowFirst = matrix.Row(rowIndex);
+                var matrixCombined = rowFirst.ToRowMatrix();
+
+                //add other rows if needed
+                for (int i = 1; i < numberOfRows; i++)
+                {
+                    if (i % everyNth == 0)
+                    {
+                        var rowi = matrix.Row(rowIndex + i);
+                        matrixCombined = matrixCombined.Stack(rowi.ToRowMatrix());
+                    }
+                }
+
+                Assert.AreEqual(rowsM, matrixCombined);
+            }
         }
 
 

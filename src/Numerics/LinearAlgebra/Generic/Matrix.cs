@@ -2178,6 +2178,42 @@ namespace MathNet.Numerics.LinearAlgebra.Generic
             SetSubMatrix(rowIndex, numberOfRows, 0, ColumnCount, aMatrix);
         }
 
+
+
+        /// <summary>
+        /// Returns a matrix of selected Rows.
+        /// </summary>
+        /// <param name="keep">An Ienumberable, using 0 based indexing of the the selected Rows. </param>
+        /// <returns> A matrix that contains the selected rows</returns>
+        public virtual Matrix<T> SelectRows(IEnumerable<int> keep)
+        {
+            IEnumerable<Tuple<int, Vector<T>>> vRows = RowEnumerator(0, RowCount);
+            var selected = from elem in vRows
+                           from keeps in keep
+                           where (elem.Item1 == keeps)
+                           select elem.Item2;
+
+            return Matrix<T>.CreateFromRows(selected.ToList());
+        }
+
+
+        /// <summary>
+        /// Returns a matrix of selected Columns.
+        /// </summary>
+        /// <param name="keep">An Ienumberable, using 0 based indexing of the the selected Columnss. </param>
+        /// <returns> A matrix that contains the selected Columns</returns>
+        public virtual Matrix<T> SelectColumns(IEnumerable<int> keep)
+        {
+            IEnumerable<Tuple<int, Vector<T>>> vColumns = ColumnEnumerator(0, ColumnCount);
+            var selected = from elem in vColumns
+                           from keeps in keep
+                           where (elem.Item1 == keeps)
+                           select elem.Item2;
+
+            return Matrix<T>.CreateFromColumns(selected.ToList());
+        }
+
+
         // 1 based index extension. So columns, rows count 1,2,3... instead of 0,1,2,3.
         // I stand for Roman I. Romans did not have a number for 0 and there first number was roman 1 or I.
 
@@ -2653,6 +2689,11 @@ namespace MathNet.Numerics.LinearAlgebra.Generic
             yield break;
         }
 
+        /// <summary>
+        /// Returns a matrix of selected Rows.
+        /// </summary>
+        /// <param name="keep">An Ienumberable, using 1 based indexing of the the selected Rows. </param>
+        /// <returns> A matrix that contains the selected rows</returns>
         public Matrix<T> SelectRowsI(IEnumerable<int> keep)
         {
             IEnumerable<Tuple<int, Vector<T>>> vRows = RowEnumeratorI(1, RowCount);
@@ -2661,10 +2702,15 @@ namespace MathNet.Numerics.LinearAlgebra.Generic
                                where (elem.Item1 == keeps)
                                select elem.Item2;
 
-            throw new NotSupportedException("test this first");
             return Matrix<T>.CreateFromRows(selected.ToList());
         }
 
+
+        /// <summary>
+        /// Returns a matrix of selected Columns.
+        /// </summary>
+        /// <param name="keep">An Ienumberable, using 1 based indexing of the the selected Columnss. </param>
+        /// <returns> A matrix that contains the selected Columns</returns>
         public Matrix<T> SelectColumnsI(IEnumerable<int> keep)
         {
             IEnumerable<Tuple<int, Vector<T>>> vColumns = ColumnEnumeratorI(1, ColumnCount);
@@ -2673,7 +2719,6 @@ namespace MathNet.Numerics.LinearAlgebra.Generic
                                   where (elem.Item1 == keeps)
                                   select elem.Item2;
 
-            throw new NotSupportedException("test this first");
             return Matrix<T>.CreateFromColumns(selected.ToList());
         }
 
