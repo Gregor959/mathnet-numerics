@@ -569,7 +569,7 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Complex
             }
             Assert.AreEqual(found, 1);
 
-            vector.SetOnIndeces(indEnum, testValue);
+            vector.SetOnIndices(indEnum, testValue);
 
 
             //make sure none are found now.

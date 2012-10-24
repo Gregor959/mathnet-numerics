@@ -1680,7 +1680,7 @@ namespace MathNet.Numerics.LinearAlgebra.Generic
         /// <param name="indxs">The enumerables of ints, using 0 based indexing.</param>
         /// <param name="value">The value to set the Elements to.</param>
         /// <exception cref="ArgumentNullException">If indxs is <see langword="null" />.</exception>
-        public virtual void SetOnIndeces(IEnumerable<int> indxs, T value)
+        public virtual void SetOnIndices(IEnumerable<int> indxs, T value)
         {
             if (indxs == null) throw new ArgumentNullException("indxs");
 
@@ -1827,6 +1827,29 @@ namespace MathNet.Numerics.LinearAlgebra.Generic
             }
    
    
+        }
+
+
+        /// <summary>
+        /// Applies a function to all the elements of a given Vector. No specialisation for SparsVectors yet.
+        /// </summary>
+        /// <param name="func"></param>
+        /// <exception cref="ArgumentNullException">If func is <see langword="null" />.</exception>
+        public virtual void OnMaskApply( Func<T, T> func)
+        {
+
+            if (func == null)
+            {
+                throw new ArgumentNullException("func");
+            }
+
+
+            for (var index = 0; index < Count; index++)
+            {
+                  At(index, func(At(index)));
+                
+            }
+
         }
 
 

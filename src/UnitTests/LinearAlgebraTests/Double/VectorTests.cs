@@ -583,7 +583,7 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Double
             }
             Assert.AreEqual(found, 1);
 
-            vector.SetOnIndeces(indEnum, testValue);
+            vector.SetOnIndices(indEnum, testValue);
 
 
             //make sure none are found now.
