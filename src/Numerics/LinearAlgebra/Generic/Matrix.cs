@@ -1896,6 +1896,30 @@ namespace MathNet.Numerics.LinearAlgebra.Generic
         }
 
         /// <summary>
+        /// Applies a function to each element of a given Matrix. 
+        /// </summary>
+        /// <param name="func">The function to apply to the elements of the matrix.</param>
+        /// <exception cref="ArgumentNullException">If the Func is <see langword="null" />.</exception>
+        public virtual void OnMaskApply( Func<T, T> func)
+        {
+
+            if (func == null)
+            {
+                throw new ArgumentNullException("func");
+            }
+
+            for (var column = 0; column < ColumnCount; column++)
+            {
+                for (var row = 0; row < RowCount; row++)
+                {
+                        At(row, column, func(At(row, column)));
+                }
+            }
+
+        }
+
+
+        /// <summary>
         /// Creates an iterator on the element of the mask matrix    
         /// Returns the elements of a Matrix where Mask==1 and puts them in an Enumerable 
         /// </summary>
@@ -2629,6 +2653,29 @@ namespace MathNet.Numerics.LinearAlgebra.Generic
             yield break;
         }
 
+        public Matrix<T> SelectRowsI(IEnumerable<int> keep)
+        {
+            IEnumerable<Tuple<int, Vector<T>>> vRows = RowEnumeratorI(1, RowCount);
+            var selected      = from elem in vRows
+                               from keeps in keep
+                               where (elem.Item1 == keeps)
+                               select elem.Item2;
+
+            throw new NotSupportedException("test this first");
+            return Matrix<T>.CreateFromRows(selected.ToList());
+        }
+
+        public Matrix<T> SelectColumnsI(IEnumerable<int> keep)
+        {
+            IEnumerable<Tuple<int, Vector<T>>> vColumns = ColumnEnumeratorI(1, ColumnCount);
+            var selected         = from elem in vColumns
+                                  from keeps in keep
+                                  where (elem.Item1 == keeps)
+                                  select elem.Item2;
+
+            throw new NotSupportedException("test this first");
+            return Matrix<T>.CreateFromColumns(selected.ToList());
+        }
 
     }
 }

@@ -1142,5 +1142,6 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
             return new DenseVector(size, 1.0f);
         }
 
+       
     }
 }

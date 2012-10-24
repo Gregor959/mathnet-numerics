@@ -1186,6 +1186,14 @@ namespace MathNet.Numerics.LinearAlgebra.Double
             return new DenseVector(size, 1.0);
         }
 
+        /// <summary>
+        /// Gets the Vector's data.
+        /// </summary>
+        /// <value>The vector's data.</value>
+        public double[] DataStore
+        {
+            get { return Data; }
+        }
     
     }
 }

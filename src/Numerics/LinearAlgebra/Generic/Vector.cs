@@ -35,7 +35,7 @@ namespace MathNet.Numerics.LinearAlgebra.Generic
     using Numerics;
     using Properties;
     using Threading;
-
+    using System.Linq;
     /// <summary>
     /// Defines the generic class for <c>Vector</c> classes.
     /// </summary>
@@ -1929,25 +1929,25 @@ namespace MathNet.Numerics.LinearAlgebra.Generic
         public int MinimumIndexI()
         {
             int zeroBasedIndex= MinimumIndex();
-            return zeroBasedIndex++;
+            return zeroBasedIndex+1;
         }
 
         public int MaximumIndexI()
         {
             int zeroBasedIndex = MaximumIndex();
-            return zeroBasedIndex++;
+            return zeroBasedIndex+1;
         }
 
         public int AbsoluteMinimumIndexI()
         {
             int zeroBasedIndex = AbsoluteMinimumIndex();
-            return zeroBasedIndex++;
+            return zeroBasedIndex+1;
         }
         
         public  int AbsoluteMaximumIndexI()
         {
             int zeroBasedIndex = AbsoluteMaximumIndex();
-            return zeroBasedIndex++;
+            return zeroBasedIndex+1;
         }
 
         /// <summary>
@@ -2041,6 +2041,54 @@ namespace MathNet.Numerics.LinearAlgebra.Generic
             yield break;
         }
 
-        
+        /// <summary>
+        /// Returns an <see cref="IEnumerator{T}"/> that contains the position (using 1 based indexing) and value of the element.
+        /// </summary>
+        /// <returns>
+        /// An <see cref="IEnumerator{T}"/> over this vector that contains the position and value of each
+        /// element.
+        /// </returns>
+        /// <remarks>
+        /// The enumerator returns a 
+        /// <seealso cref="Tuple{T,K}"/>
+        /// with the first value being the element index and the second value 
+        /// being the value of the element at that index. For sparse vectors, the enumerator will exclude all elements
+        /// with a zero value. 
+        /// </remarks>
+        public virtual IEnumerable<Tuple<int, T>> GetIndexedEnumeratorI()
+        {
+            for (var i = 0; i < Count; i++)
+            {
+                yield return new Tuple<int, T>(i+1, this[i]);
+            }
+        }
+
+
+
+        public virtual T[] SelectElements(IEnumerable<int> keep)
+        {
+            IEnumerable<Tuple<int, T>> vElements = this.GetIndexedEnumerator();
+            var selected = from elem in vElements
+                           from keeps in keep
+                           where (elem.Item1 == keeps)
+                           select elem.Item2;
+            throw new NotSupportedException("test this first SelectElements");
+
+            return selected.ToArray();
+        }
+
+        public virtual T[] SelectElementsI(IEnumerable<int> keepI)
+        {
+            IEnumerable<Tuple<int, T>> vElements = this.GetIndexedEnumeratorI();
+            var selected = from elem in vElements
+                           from keeps in keepI
+                           where (elem.Item1 == keeps)
+                           select elem.Item2;
+            throw new NotSupportedException("test this first SelectElementsI");
+
+            return selected.ToArray();
+        }
+
+
   }
 }

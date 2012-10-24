@@ -1088,6 +1088,5 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
             return new DenseVector(size, 1.0);
         }
 
-    
     }
 }

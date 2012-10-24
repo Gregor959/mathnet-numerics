@@ -1570,5 +1570,28 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
 
             return ret;
         }
+
+        /// <summary>
+        /// Returns an <see cref="IEnumerator{T}"/> that contains the position, using 1 based indexing and value of the element.
+        /// </summary>
+        /// <returns>
+        /// An <see cref="IEnumerator{T}"/> over this vector that contains the position and value of each
+        /// element.
+        /// </returns>
+        /// <remarks>
+        /// The enumerator returns a 
+        /// <seealso cref="Tuple{T,K}"/>
+        /// with the first value being the element index and the second value 
+        /// being the value of the element at that index. For sparse vectors, the enumerator will exclude all elements
+        /// with a zero value.
+        /// </remarks>
+        public override IEnumerable<Tuple<int, Complex32>> GetIndexedEnumeratorI()
+        {
+            for (var i = 0; i < NonZerosCount; i++)
+            {
+                yield return new Tuple<int, Complex32>(_nonZeroIndices[i]+1, _nonZeroValues[i]);
+            }
+        }
+
     }
 }
