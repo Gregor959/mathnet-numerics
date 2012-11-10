@@ -11,7 +11,7 @@
     <RootNamespace>MathNet.Numerics</RootNamespace>
     <AssemblyName>MathNet.Numerics</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Profile37</TargetFrameworkProfile>
+    <TargetFrameworkProfile>Profile136</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
   </PropertyGroup>
@@ -891,6 +891,9 @@
     <Compile Include="..\Numerics\LinearAlgebra\Storage\DenseColumnMajorMatrixStorage.cs">
       <Link>LinearAlgebra\Storage\DenseColumnMajorMatrixStorage.cs</Link>
     </Compile>
+    <Compile Include="..\Numerics\LinearAlgebra\Storage\DenseVectorStorage.cs">
+      <Link>LinearAlgebra\Storage\DenseVectorStorage.cs</Link>
+    </Compile>
     <Compile Include="..\Numerics\LinearAlgebra\Storage\DiagonalMatrixStorage.cs">
       <Link>LinearAlgebra\Storage\DiagonalMatrixStorage.cs</Link>
     </Compile>
@@ -902,6 +905,12 @@
     </Compile>
     <Compile Include="..\Numerics\LinearAlgebra\Storage\SparseCompressedRowMatrixStorage.cs">
       <Link>LinearAlgebra\Storage\SparseCompressedRowMatrixStorage.cs</Link>
+    </Compile>
+    <Compile Include="..\Numerics\LinearAlgebra\Storage\VectorStorage.cs">
+      <Link>LinearAlgebra\Storage\VectorStorage.cs</Link>
+    </Compile>
+    <Compile Include="..\Numerics\LinearAlgebra\Storage\VectorStorage.Validation.cs">
+      <Link>LinearAlgebra\Storage\VectorStorage.Validation.cs</Link>
     </Compile>
     <Compile Include="..\Numerics\NumberTheory\IntegerTheory.cs">
       <Link>NumberTheory\IntegerTheory.cs</Link>

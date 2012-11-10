@@ -722,11 +722,12 @@ namespace MathNet.Numerics.LinearAlgebra.Double
                 {
                     sparseResult.NonZerosCount = NonZerosCount;
                     sparseResult._nonZeroIndices = new int[NonZerosCount];
-                    Buffer.BlockCopy(_nonZeroIndices, 0, sparseResult._nonZeroIndices, 0, _nonZeroIndices.Length * Constants.SizeOfInt);
-                    sparseResult._nonZeroValues = new double[_nonZeroValues.Length];
+                    Buffer.BlockCopy(_nonZeroIndices, 0, sparseResult._nonZeroIndices, 0, NonZerosCount * Constants.SizeOfInt);
+                    sparseResult._nonZeroValues = new double[NonZerosCount];
+                    Buffer.BlockCopy(_nonZeroValues, 0, sparseResult._nonZeroValues, 0, NonZerosCount * Constants.SizeOfDouble);
                 }
 
-                Control.LinearAlgebraProvider.ScaleArray(scalar, _nonZeroValues, sparseResult._nonZeroValues);
+                Control.LinearAlgebraProvider.ScaleArray(scalar, sparseResult._nonZeroValues, sparseResult._nonZeroValues);
             }
         }
 
