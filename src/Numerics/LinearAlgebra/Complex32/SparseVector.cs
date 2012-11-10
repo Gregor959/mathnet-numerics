@@ -737,6 +737,28 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
         }
 
         /// <summary>
+        /// Multiplies a scalar to each element of the vector.
+        /// </summary>
+        /// <param name="scalar">The scalar to multiply.</param>
+        /// <returns>A new vector that is the multiplication of the vector and the scalar.</returns>
+        public override Vector<Complex32> Multiply(Complex32 scalar)
+        {
+            if (scalar == Complex32.One)
+            {
+                return Clone();
+            }
+
+            if (scalar == Complex32.Zero)
+            {
+                return new SparseVector(Count);
+            }
+
+            var copy = new SparseVector(this);
+            Control.LinearAlgebraProvider.ScaleArray(scalar, copy._nonZeroValues, copy._nonZeroValues);
+            return copy;
+        }
+
+        /// <summary>
         /// Multiplies a scalar to each element of the vector and stores the result in the result vector.
         /// </summary>
         /// <param name="scalar">
@@ -778,11 +800,12 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
                 {
                     sparseResult.NonZerosCount = NonZerosCount;
                     sparseResult._nonZeroIndices = new int[NonZerosCount];
-                    Buffer.BlockCopy(_nonZeroIndices, 0, sparseResult._nonZeroIndices, 0, _nonZeroIndices.Length * Constants.SizeOfInt);
-                    sparseResult._nonZeroValues = new Complex32[_nonZeroValues.Length];
+                    Buffer.BlockCopy(_nonZeroIndices, 0, sparseResult._nonZeroIndices, 0, NonZerosCount * Constants.SizeOfInt);
+                    sparseResult._nonZeroValues = new Complex32[NonZerosCount];
+                    Array.Copy(_nonZeroValues, sparseResult._nonZeroValues, NonZerosCount);
                 }
 
-                Control.LinearAlgebraProvider.ScaleArray(scalar, _nonZeroValues, sparseResult._nonZeroValues);
+                Control.LinearAlgebraProvider.ScaleArray(scalar, sparseResult._nonZeroValues, sparseResult._nonZeroValues);
             }
         }
 
