@@ -2181,36 +2181,52 @@ namespace MathNet.Numerics.LinearAlgebra.Generic
 
 
         /// <summary>
-        /// Returns a matrix of selected Rows.
+        /// Returns a matrix of selected Rows in the order of the given Enumerable.
         /// </summary>
         /// <param name="keep">An Ienumberable, using 0 based indexing of the the selected Rows. </param>
         /// <returns> A matrix that contains the selected rows</returns>
         public virtual Matrix<T> SelectRows(IEnumerable<int> keep)
         {
-            IEnumerable<Tuple<int, Vector<T>>> vRows = RowEnumerator(0, RowCount);
-            var selected = from elem in vRows
-                           from keeps in keep
-                           where (elem.Item1 == keeps)
-                           select elem.Item2;
+            var keepList = keep.ToList();
+            var target = CreateMatrix( keepList.Count,this.ColumnCount);
 
-            return Matrix<T>.CreateFromRows(selected.ToList());
+            int targetRow = 0;
+            foreach (int r in keepList)
+            {
+                if (r >= RowCount || r<0)
+                {
+                    throw new IndexOutOfRangeException("Matrix.SelectRows index out of range.");
+                }
+                Storage.CopySubMatrixTo(target.Storage,  r, targetRow, 1, 0, 0, ColumnCount);
+                targetRow++;
+            }
+            return target;
+        
         }
 
 
         /// <summary>
-        /// Returns a matrix of selected Columns.
+        /// Returns a matrix of selected Columns in the order of the given Enumerable.
         /// </summary>
         /// <param name="keep">An Ienumberable, using 0 based indexing of the the selected Columnss. </param>
         /// <returns> A matrix that contains the selected Columns</returns>
         public virtual Matrix<T> SelectColumns(IEnumerable<int> keep)
         {
-            IEnumerable<Tuple<int, Vector<T>>> vColumns = ColumnEnumerator(0, ColumnCount);
-            var selected = from elem in vColumns
-                           from keeps in keep
-                           where (elem.Item1 == keeps)
-                           select elem.Item2;
-
-            return Matrix<T>.CreateFromColumns(selected.ToList());
+            var keepList = keep.ToList();
+            var target = CreateMatrix(this.RowCount, keepList.Count);
+            
+            int targetColumn = 0;
+            foreach (int c in keepList)
+            {
+                if (c >= ColumnCount || c < 0) 
+                         { 
+                            throw new IndexOutOfRangeException("Matrix.SelectColumns index out of range."); 
+                         }
+                Storage.CopySubMatrixTo(target.Storage, 0, 0, RowCount, c, targetColumn, 1);
+                targetColumn++;
+            }
+            return target;
+        
         }
 
 
@@ -2690,36 +2706,47 @@ namespace MathNet.Numerics.LinearAlgebra.Generic
         }
 
         /// <summary>
-        /// Returns a matrix of selected Rows.
+        /// Returns a matrix of selected Rows in the order of the given Enumerable.
         /// </summary>
         /// <param name="keep">An Ienumberable, using 1 based indexing of the the selected Rows. </param>
         /// <returns> A matrix that contains the selected rows</returns>
         public Matrix<T> SelectRowsI(IEnumerable<int> keep)
         {
-            IEnumerable<Tuple<int, Vector<T>>> vRows = RowEnumeratorI(1, RowCount);
-            var selected      = from elem in vRows
-                               from keeps in keep
-                               where (elem.Item1 == keeps)
-                               select elem.Item2;
+        //    IEnumerable<Tuple<int, Vector<T>>> vRows = RowEnumeratorI(1, RowCount);
 
-            return Matrix<T>.CreateFromRows(selected.ToList());
+        //    //create an index field on keep because we want to sort the rows the same as in the Enumerator keep
+        //    var keepAndIndex = keep.Select((item, index) => new { Row = item, Index = index });
+
+        //    var selected     = from keeps in keepAndIndex
+        //                       from elem in vRows
+        //                       where (elem.Item1 == keeps.Row)
+        //                       orderby keeps.Index
+        //                       select elem.Item2;
+        //    return Matrix<T>.CreateFromRows(selected.ToList());
+        //
+            return SelectRows(from row in keep select row - 1);
         }
 
 
         /// <summary>
-        /// Returns a matrix of selected Columns.
+        /// Returns a matrix of selected Columns in the order of the given Enumerable
         /// </summary>
         /// <param name="keep">An Ienumberable, using 1 based indexing of the the selected Columnss. </param>
         /// <returns> A matrix that contains the selected Columns</returns>
         public Matrix<T> SelectColumnsI(IEnumerable<int> keep)
         {
-            IEnumerable<Tuple<int, Vector<T>>> vColumns = ColumnEnumeratorI(1, ColumnCount);
-            var selected         = from elem in vColumns
-                                  from keeps in keep
-                                  where (elem.Item1 == keeps)
-                                  select elem.Item2;
+           // IEnumerable<Tuple<int, Vector<T>>> vColumns = ColumnEnumeratorI(1, ColumnCount);
 
-            return Matrix<T>.CreateFromColumns(selected.ToList());
+           // //create an index field on keep because we want to sort the columns the same as in the Enumerator keep
+           // var keepAndIndex = keep.Select((item, index) => new { Column = item, Index = index });
+
+           // var selected = from keeps in keepAndIndex
+           //                from elem in vColumns
+           //                where (elem.Item1 == keeps.Column)
+           //                orderby keeps.Index
+           //                select elem.Item2;
+           //return Matrix<T>.CreateFromColumns(selected.ToList());
+            return SelectColumns(from column in keep select column - 1);
         }
 
     }

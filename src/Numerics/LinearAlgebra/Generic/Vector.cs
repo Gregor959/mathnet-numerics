@@ -2065,26 +2065,40 @@ namespace MathNet.Numerics.LinearAlgebra.Generic
 
 
 
-        public virtual T[] SelectElements(IEnumerable<int> keep)
+        public virtual Vector<T> SelectElements(IEnumerable<int> keep)
         {
-            IEnumerable<Tuple<int, T>> vElements = this.GetIndexedEnumerator();
-            var selected = from elem in vElements
-                           from keeps in keep
-                           where (elem.Item1 == keeps)
-                           select elem.Item2;
+        //    IEnumerable<Tuple<int, T>> vElements = this.GetIndexedEnumerator();
 
-            return selected.ToArray();
+        //    var keepAndIndex = keep.Select((item, index) => new { Element = item, Index = index });
+
+        //    var selected = from keeps in keepAndIndex
+        //                   from elem in vElements
+        //                   where (elem.Item1 == keeps.Element)
+        //                   orderby keeps.Index
+        //                   select elem.Item2;
+
+        //    return selected.ToArray();
+        //
+
+            var keepList = keep.ToList();
+            var returnv = CreateVector(keepList.Count);
+            
+            int target = 0;
+            foreach (int c in keepList)
+            {
+                if (c >= Count || c < 0)
+                {
+                    throw new IndexOutOfRangeException("Vector.SelectElements index out of range.");
+                }
+                returnv.At(target,this.At(c));
+                target++;
+            }
+            return returnv;
         }
 
-        public virtual T[] SelectElementsI(IEnumerable<int> keepI)
+        public virtual Vector<T> SelectElementsI(IEnumerable<int> keepI)
         {
-            IEnumerable<Tuple<int, T>> vElements = this.GetIndexedEnumeratorI();
-            var selected = from elem in vElements
-                           from keeps in keepI
-                           where (elem.Item1 == keeps)
-                           select elem.Item2;
-
-            return selected.ToArray();
+            return SelectElements(from elem in keepI select elem - 1);
         }
 
 

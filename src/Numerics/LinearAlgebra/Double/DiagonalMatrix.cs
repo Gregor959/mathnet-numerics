@@ -1275,6 +1275,47 @@ namespace MathNet.Numerics.LinearAlgebra.Double
             throw new InvalidOperationException("Shuffling Rows in diagonal matrix are not allowed");
         }
 
+        /// <summary>
+        /// Returns a matrix of selected Rows in the order of the given Enumerable.
+        /// </summary>
+        /// <param name="keep">An Ienumberable, using 0 based indexing of the the selected Rows. </param>
+        /// <returns> A matrix that contains the selected rows</returns>
+        public override Matrix<double> SelectRows(IEnumerable<int> keep)
+        {
+            IEnumerable<Tuple<int, Vector<double>>> vRows = RowEnumerator(0, RowCount);
+
+            //create an index field on keep because we want to sort the rows the same as in the Enumerator keep
+            var keepAndIndex = keep.Select((item, index) => new { Row = item, Index = index });
+
+            var selected = from keeps in keepAndIndex
+                           from elem in vRows
+                           where (elem.Item1 == keeps.Row)
+                           orderby keeps.Index
+                           select elem.Item2;
+
+            return Matrix<double>.CreateFromRows(selected.ToList());
+        }
+
+        /// <summary>
+        /// Returns a matrix of selected Columns in the order of the given Enumerable.
+        /// </summary>
+        /// <param name="keep">An Ienumberable, using 0 based indexing of the the selected Columnss. </param>
+        /// <returns> A matrix that contains the selected Columns</returns>
+        public override Matrix<double> SelectColumns(IEnumerable<int> keep)
+        {
+            IEnumerable<Tuple<int, Vector<double>>> vColumns = ColumnEnumerator(0, ColumnCount);
+
+            //create an index field on keep because we want to sort the Columns the same as in the Enumerator keep
+            var keepAndIndex = keep.Select((item, index) => new { Column = item, Index = index });
+
+            var selected = from keeps in keepAndIndex
+                           from elem in vColumns
+                           where (elem.Item1 == keeps.Column)
+                           orderby keeps.Index
+                           select elem.Item2;
+
+            return Matrix<double>.CreateFromColumns(selected.ToList());
+        }
 
 
         /// <summary>
