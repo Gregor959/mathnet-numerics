@@ -2067,19 +2067,6 @@ namespace MathNet.Numerics.LinearAlgebra.Generic
 
         public virtual Vector<T> SelectElements(IEnumerable<int> keep)
         {
-        //    IEnumerable<Tuple<int, T>> vElements = this.GetIndexedEnumerator();
-
-        //    var keepAndIndex = keep.Select((item, index) => new { Element = item, Index = index });
-
-        //    var selected = from keeps in keepAndIndex
-        //                   from elem in vElements
-        //                   where (elem.Item1 == keeps.Element)
-        //                   orderby keeps.Index
-        //                   select elem.Item2;
-
-        //    return selected.ToArray();
-        //
-
             var keepList = keep.ToList();
             var returnv = CreateVector(keepList.Count);
             
