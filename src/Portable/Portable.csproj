@@ -906,6 +906,9 @@
     <Compile Include="..\Numerics\LinearAlgebra\Storage\SparseCompressedRowMatrixStorage.cs">
       <Link>LinearAlgebra\Storage\SparseCompressedRowMatrixStorage.cs</Link>
     </Compile>
+    <Compile Include="..\Numerics\LinearAlgebra\Storage\SparseVectorStorage.cs">
+      <Link>LinearAlgebra\Storage\SparseVectorStorage.cs</Link>
+    </Compile>
     <Compile Include="..\Numerics\LinearAlgebra\Storage\VectorStorage.cs">
       <Link>LinearAlgebra\Storage\VectorStorage.cs</Link>
     </Compile>
@@ -981,20 +984,32 @@
     <Compile Include="..\Numerics\Sorting.cs">
       <Link>Sorting.cs</Link>
     </Compile>
-    <Compile Include="..\Numerics\SpecialFunctions.cs">
-      <Link>SpecialFunctions.cs</Link>
-    </Compile>
     <Compile Include="..\numerics\specialfunctions\Beta.cs">
       <Link>SpecialFunctions\Beta.cs</Link>
     </Compile>
     <Compile Include="..\numerics\specialfunctions\Erf.cs">
       <Link>SpecialFunctions\Erf.cs</Link>
     </Compile>
+    <Compile Include="..\Numerics\SpecialFunctions\Evaluate.cs">
+      <Link>SpecialFunctions\Evaluate.cs</Link>
+    </Compile>
     <Compile Include="..\numerics\specialfunctions\Factorial.cs">
       <Link>SpecialFunctions\Factorial.cs</Link>
     </Compile>
     <Compile Include="..\numerics\specialfunctions\Gamma.cs">
       <Link>SpecialFunctions\Gamma.cs</Link>
+    </Compile>
+    <Compile Include="..\Numerics\SpecialFunctions\Harmonic.cs">
+      <Link>SpecialFunctions\Harmonic.cs</Link>
+    </Compile>
+    <Compile Include="..\Numerics\SpecialFunctions\Logistic.cs">
+      <Link>SpecialFunctions\Logistic.cs</Link>
+    </Compile>
+    <Compile Include="..\Numerics\SpecialFunctions\ModifiedBessel.cs">
+      <Link>SpecialFunctions\ModifiedBessel.cs</Link>
+    </Compile>
+    <Compile Include="..\Numerics\SpecialFunctions\ModifiedStruve.cs">
+      <Link>SpecialFunctions\ModifiedStruve.cs</Link>
     </Compile>
     <Compile Include="..\numerics\specialfunctions\Stability.cs">
       <Link>SpecialFunctions\Stability.cs</Link>
@@ -1028,6 +1043,9 @@
     </Compile>
     <Compile Include="..\Numerics\Statistics\Statistics.cs">
       <Link>Statistics\Statistics.cs</Link>
+    </Compile>
+    <Compile Include="..\Numerics\TargetedPatchingOptOutAttribute.cs">
+      <Link>TargetedPatchingOptOutAttribute.cs</Link>
     </Compile>
     <Compile Include="..\Numerics\Threading\CommonParallel.cs">
       <Link>Threading\CommonParallel.cs</Link>

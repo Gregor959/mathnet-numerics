@@ -28,6 +28,7 @@ namespace MathNet.Numerics.LinearAlgebra.Double
 {
     using System;
     using Algorithms.LinearAlgebra;
+    using Distributions;
     using Generic;
     using Properties;
     using Storage;
@@ -39,8 +40,6 @@ namespace MathNet.Numerics.LinearAlgebra.Double
     [Serializable]
     public class DenseMatrix : Matrix
     {
-        readonly DenseColumnMajorMatrixStorage<double> _storage;
-
         /// <summary>
         /// Number of rows.
         /// </summary>
@@ -59,15 +58,17 @@ namespace MathNet.Numerics.LinearAlgebra.Double
         /// Gets the matrix's data.
         /// </summary>
         /// <value>The matrix's data.</value>
-        readonly double[] _data;
+        readonly double[] _values;
 
-        internal DenseMatrix(DenseColumnMajorMatrixStorage<double> storage)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DenseMatrix"/> class.
+        /// </summary>
+        public DenseMatrix(DenseColumnMajorMatrixStorage<double> storage)
             : base(storage)
         {
-            _storage = storage;
-            _rowCount = _storage.RowCount;
-            _columnCount = _storage.ColumnCount;
-            _data = _storage.Data;
+            _rowCount = storage.RowCount;
+            _columnCount = storage.ColumnCount;
+            _values = storage.Data;
         }
 
         /// <summary>
@@ -109,9 +110,9 @@ namespace MathNet.Numerics.LinearAlgebra.Double
         public DenseMatrix(int rows, int columns, double value)
             : this(rows, columns)
         {
-            for (var i = 0; i < _data.Length; i++)
+            for (var i = 0; i < _values.Length; i++)
             {
-                _data[i] = value;
+                _values[i] = value;
             }
         }
 
@@ -139,7 +140,7 @@ namespace MathNet.Numerics.LinearAlgebra.Double
             {
                 for (var j = 0; j < _columnCount; j++)
                 {
-                    _data[(j * _rowCount) + i] = array[i, j];
+                    _values[(j * _rowCount) + i] = array[i, j];
                 }
             }
         }
@@ -152,16 +153,39 @@ namespace MathNet.Numerics.LinearAlgebra.Double
         public DenseMatrix(Matrix<double> matrix)
             : this(matrix.RowCount, matrix.ColumnCount)
         {
-            matrix.Storage.CopyTo(Storage, skipClearing: true);
+            matrix.Storage.CopyToUnchecked(Storage, skipClearing: true);
+        }
+
+        /// <summary>
+        /// Create a new dense matrix with values sampled from the provided random distribution.
+        /// </summary>
+        public static DenseMatrix CreateRandom(int rows, int columns, IContinuousDistribution distribution)
+        {
+            var storage = new DenseColumnMajorMatrixStorage<double>(rows, columns);
+            for (var i = 0; i < storage.Data.Length; i++)
+            {
+                storage.Data[i] = distribution.Sample();
+            }
+            return new DenseMatrix(storage);
         }
 
         /// <summary>
         /// Gets the matrix's data.
         /// </summary>
         /// <value>The matrix's data.</value>
+        [Obsolete("Use Values instead. Will be removed in future versions.")]
         public double[] Data
         {
-            get { return _data; }
+            get { return _values; }
+        }
+
+        /// <summary>
+        /// Gets the matrix's data.
+        /// </summary>
+        /// <value>The matrix's data.</value>
+        public double[] Values
+        {
+            get { return _values; }
         }
 
         /// <summary>
@@ -203,7 +227,7 @@ namespace MathNet.Numerics.LinearAlgebra.Double
                 var index = j * _rowCount;
                 for (var i = 0; i < _rowCount; i++)
                 {
-                    ret._data[(i * _columnCount) + j] = _data[index + i];
+                    ret._values[(i * _columnCount) + j] = _values[index + i];
                 }
             }
 
@@ -214,21 +238,21 @@ namespace MathNet.Numerics.LinearAlgebra.Double
         /// <returns>The L1 norm of the matrix.</returns>
         public override double L1Norm()
         {
-            return Control.LinearAlgebraProvider.MatrixNorm(Norm.OneNorm, _rowCount, _columnCount, _data);
+            return Control.LinearAlgebraProvider.MatrixNorm(Norm.OneNorm, _rowCount, _columnCount, _values);
         }
 
         /// <summary>Calculates the Frobenius norm of this matrix.</summary>
         /// <returns>The Frobenius norm of this matrix.</returns>
         public override double FrobeniusNorm()
         {
-            return Control.LinearAlgebraProvider.MatrixNorm(Norm.FrobeniusNorm, _rowCount, _columnCount, _data);
+            return Control.LinearAlgebraProvider.MatrixNorm(Norm.FrobeniusNorm, _rowCount, _columnCount, _values);
         }
 
         /// <summary>Calculates the infinity norm of this matrix.</summary>
         /// <returns>The infinity norm of this matrix.</returns>  
         public override double InfinityNorm()
         {
-            return Control.LinearAlgebraProvider.MatrixNorm(Norm.InfinityNorm, _rowCount, _columnCount, _data);
+            return Control.LinearAlgebraProvider.MatrixNorm(Norm.InfinityNorm, _rowCount, _columnCount, _values);
         }
 
         #region Static constructors for special matrices.
@@ -246,7 +270,7 @@ namespace MathNet.Numerics.LinearAlgebra.Double
             var m = new DenseMatrix(order);
             for (var i = 0; i < order; i++)
             {
-                m._data[(i * order) + i] = 1.0;
+                m._values[(i * order) + i] = 1.0;
             }
 
             return m;
@@ -271,7 +295,7 @@ namespace MathNet.Numerics.LinearAlgebra.Double
             }
             else
             {
-                Control.LinearAlgebraProvider.AddArrays(_data, denseOther._data, denseResult._data);
+                Control.LinearAlgebraProvider.AddArrays(_values, denseOther._values, denseResult._values);
             }
         }
 
@@ -290,7 +314,7 @@ namespace MathNet.Numerics.LinearAlgebra.Double
             }
             else
             {
-                Control.LinearAlgebraProvider.SubtractArrays(_data, denseOther._data, denseResult._data);
+                Control.LinearAlgebraProvider.SubtractArrays(_values, denseOther._values, denseResult._values);
             }
         }
     
@@ -308,7 +332,7 @@ namespace MathNet.Numerics.LinearAlgebra.Double
             }
             else
             {
-                Control.LinearAlgebraProvider.ScaleArray(scalar, _data, denseResult._data);
+                Control.LinearAlgebraProvider.ScaleArray(scalar, _values, denseResult._values);
             }
         }
      
@@ -332,14 +356,14 @@ namespace MathNet.Numerics.LinearAlgebra.Double
                     Algorithms.LinearAlgebra.Transpose.DontTranspose,
                     Algorithms.LinearAlgebra.Transpose.DontTranspose,
                     1.0,
-                    _data,
+                    _values,
                     _rowCount,
                     _columnCount,
-                    denseRight.Data,
+                    denseRight.Values,
                     denseRight.Count,
                     1,
                     0.0,
-                    denseResult.Data);
+                    denseResult.Values);
             }
         }
 
@@ -363,14 +387,14 @@ namespace MathNet.Numerics.LinearAlgebra.Double
                     Algorithms.LinearAlgebra.Transpose.DontTranspose,
                     Algorithms.LinearAlgebra.Transpose.DontTranspose,
                     1.0,
-                    _data,
+                    _values,
                     _rowCount,
                     _columnCount,
-                    denseOther._data,
+                    denseOther._values,
                     denseOther._rowCount,
                     denseOther._columnCount,
                     0.0,
-                    denseResult._data);
+                    denseResult._values);
             }
         }
 
@@ -394,14 +418,14 @@ namespace MathNet.Numerics.LinearAlgebra.Double
                     Algorithms.LinearAlgebra.Transpose.DontTranspose,
                     Algorithms.LinearAlgebra.Transpose.Transpose,
                     1.0,
-                    _data,
+                    _values,
                     _rowCount,
                     _columnCount,
-                    denseOther._data,
+                    denseOther._values,
                     denseOther._rowCount,
                     denseOther._columnCount,
                     0.0,
-                    denseResult._data);
+                    denseResult._values);
             }
         }
 
@@ -425,14 +449,14 @@ namespace MathNet.Numerics.LinearAlgebra.Double
                     Algorithms.LinearAlgebra.Transpose.Transpose,
                     Algorithms.LinearAlgebra.Transpose.DontTranspose,
                     1.0,
-                    _data,
+                    _values,
                     _rowCount,
                     _columnCount,
-                    denseRight.Data,
+                    denseRight.Values,
                     denseRight.Count,
                     1,
                     0.0,
-                    denseResult.Data);
+                    denseResult.Values);
             }
         }
 
@@ -456,14 +480,14 @@ namespace MathNet.Numerics.LinearAlgebra.Double
                     Algorithms.LinearAlgebra.Transpose.Transpose,
                     Algorithms.LinearAlgebra.Transpose.DontTranspose,
                     1.0,
-                    _data,
+                    _values,
                     _rowCount,
                     _columnCount,
-                    denseOther._data,
+                    denseOther._values,
                     denseOther._rowCount,
                     denseOther._columnCount,
                     0.0,
-                    denseResult._data);
+                    denseResult._values);
             }
         }
 
@@ -481,7 +505,7 @@ namespace MathNet.Numerics.LinearAlgebra.Double
             }
             else
             {
-                Control.LinearAlgebraProvider.ScaleArray(-1, _data, denseResult._data);
+                Control.LinearAlgebraProvider.ScaleArray(-1, _values, denseResult._values);
             }
         }
 
@@ -501,7 +525,7 @@ namespace MathNet.Numerics.LinearAlgebra.Double
             }
             else
             {
-                Control.LinearAlgebraProvider.PointWiseMultiplyArrays(_data, denseOther._data, denseResult._data);
+                Control.LinearAlgebraProvider.PointWiseMultiplyArrays(_values, denseOther._values, denseResult._values);
             }
         }
 
@@ -521,7 +545,7 @@ namespace MathNet.Numerics.LinearAlgebra.Double
             }
             else
             {
-                Control.LinearAlgebraProvider.PointWiseDivideArrays(_data, denseOther._data, denseResult._data);
+                Control.LinearAlgebraProvider.PointWiseDivideArrays(_values, denseOther._values, denseResult._values);
             }
         }
 
@@ -547,8 +571,8 @@ namespace MathNet.Numerics.LinearAlgebra.Double
 
                 CommonParallel.For(
                     0,
-                    _data.Length,
-                    index => denseResult._data[index] %= divisor);
+                    _values.Length,
+                    index => denseResult._values[index] %= divisor);
             }
         }
 
@@ -567,7 +591,7 @@ namespace MathNet.Numerics.LinearAlgebra.Double
             var sum = 0.0;
             for (var i = 0; i < _rowCount; i++)
             {
-                sum += _data[(i * _rowCount) + i];
+                sum += _values[(i * _rowCount) + i];
             }
 
             return sum;

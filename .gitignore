@@ -2,9 +2,13 @@ output
 bin
 out
 Thumbs.db
-TestResult.xml
-coverage.*
+TestResults
+Backup
+_UpgradeReport*
 _ReSharper*
+coverage.*
+TestResult.xml
+UpgradeLog.htm
 *.ReSharper
 *.user
 *.suo
@@ -15,3 +19,4 @@ _ReSharper*
 *.bak
 *.vsdoc
 *.XML
+*.so

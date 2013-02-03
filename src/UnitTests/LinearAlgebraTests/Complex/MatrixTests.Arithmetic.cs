@@ -1067,7 +1067,9 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Complex
                 {
                     for (var j = 0; j < data.ColumnCount; j++)
                     {
-                        Assert.AreEqual(data[i, j] * other[i, j], result[i, j]);
+                        var value = data[i, j]*other[i, j];
+                        Assert.AreEqual(value.Real, result[i, j].Real, 1e-12);
+                        Assert.AreEqual(value.Imaginary, result[i, j].Imaginary, 1e-12);
                     }
                 }
 
@@ -1076,7 +1078,9 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Complex
                 {
                     for (var j = 0; j < data.ColumnCount; j++)
                     {
-                        Assert.AreEqual(data[i, j] * other[i, j], result[i, j]);
+                        var value = data[i, j] * other[i, j];
+                        Assert.AreEqual(value.Real, result[i, j].Real, 1e-12);
+                        Assert.AreEqual(value.Imaginary, result[i, j].Imaginary, 1e-12);
                     }
                 }
             }
@@ -1212,9 +1216,7 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Complex
         [TestCase(-2)]
         public void RandomWithNonPositiveNumberOfRowsThrowsArgumentException(int numberOfRows)
         {
-            var matrix = CreateMatrix(2, 3);
-            Assert.Throws<ArgumentException>(() => matrix.Random(numberOfRows, 4, new ContinuousUniform()));
-            Assert.Throws<ArgumentException>(() => matrix.Random(numberOfRows, 4, new DiscreteUniform(0, 2)));
+            Assert.Throws<ArgumentOutOfRangeException>(() => DenseMatrix.CreateRandom(numberOfRows, 4, new ContinuousUniform()));
         }
 
         /// <summary>

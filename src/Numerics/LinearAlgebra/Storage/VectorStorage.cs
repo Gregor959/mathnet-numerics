@@ -3,6 +3,7 @@ using MathNet.Numerics.Properties;
 
 namespace MathNet.Numerics.LinearAlgebra.Storage
 {
+    [Serializable]
     public abstract partial class VectorStorage<T> : IEquatable<VectorStorage<T>>
         where T : struct, IEquatable<T>, IFormattable
     {
@@ -165,18 +166,7 @@ namespace MathNet.Numerics.LinearAlgebra.Storage
             return hash;
         }
 
-        /// <remarks>Parameters assumed to be validated already.</remarks>
-        public virtual void CopyTo(VectorStorage<T> target, bool skipClearing = false)
-        {
-            for (int i = 0; i < Length; i++)
-            {
-                target.At(i, At(i));
-            }
-        }
-
-        public virtual void CopySubVectorTo(VectorStorage<T> target,
-            int sourceIndex, int targetIndex, int count,
-            bool skipClearing = false)
+        public void CopyTo(VectorStorage<T> target, bool skipClearing = false)
         {
             if (target == null)
             {
@@ -185,10 +175,57 @@ namespace MathNet.Numerics.LinearAlgebra.Storage
 
             if (ReferenceEquals(this, target))
             {
-                throw new NotSupportedException();
+                return;
+            }
+
+            if (Length != target.Length)
+            {
+                throw new ArgumentException(Resources.ArgumentVectorsSameLength, "target");
+            }
+
+            CopyToUnchecked(target, skipClearing);
+        }
+
+        internal virtual void CopyToUnchecked(VectorStorage<T> target, bool skipClearing = false)
+        {
+            for (int i = 0; i < Length; i++)
+            {
+                target.At(i, At(i));
+            }
+        }
+
+        public void CopySubVectorTo(VectorStorage<T> target,
+            int sourceIndex, int targetIndex, int count,
+            bool skipClearing = false)
+        {
+            if (target == null)
+            {
+                throw new ArgumentNullException("target");
             }
 
             ValidateSubVectorRange(target, sourceIndex, targetIndex, count);
+
+            CopySubVectorToUnchecked(target, sourceIndex, targetIndex, count, skipClearing);
+        }
+
+        internal virtual void CopySubVectorToUnchecked(VectorStorage<T> target,
+            int sourceIndex, int targetIndex, int count,
+            bool skipClearing = false)
+        {
+            if (ReferenceEquals(this, target))
+            {
+                var tmp = new T[count];
+                for (int i = 0; i < tmp.Length; i++)
+                {
+                    tmp[i] = At(i + sourceIndex);
+                }
+                for (int i = 0; i < tmp.Length; i++)
+                {
+                    At(i + targetIndex, tmp[i]);
+                }
+
+                return;
+            }
 
             for (int i = sourceIndex, ii = targetIndex; i < sourceIndex + count; i++, ii++)
             {

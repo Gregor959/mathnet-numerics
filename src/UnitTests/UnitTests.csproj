@@ -62,10 +62,6 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="zlib.net, Version=1.0.3.0, Culture=neutral, PublicKeyToken=47d7877cb3620160">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\zlib.net.1.0.4.0\lib\zlib.net.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ArrayHelpers.cs" />
@@ -742,6 +738,7 @@
     </Compile>
     <Compile Include="LinearAlgebraTests\Double\VectorArithmeticTheory.cs" />
     <Compile Include="LinearAlgebraTests\VectorArithmeticTheory.cs" />
+    <Compile Include="MatrixHelpers.cs" />
     <Compile Include="NumberTheoryTests\GcdRelatedTest.cs" />
     <Compile Include="NumberTheoryTests\GcdRelatedTestBigInteger.cs" />
     <Compile Include="NumberTheoryTests\IntegerTheoryTest.cs" />
@@ -764,8 +761,9 @@
     <Compile Include="Random\WH1982Tests.cs" />
     <Compile Include="Random\WH2006Tests.cs" />
     <Compile Include="Random\XorshiftTests.cs" />
-    <Compile Include="Setup.cs" />
     <Compile Include="SortingTests.cs" />
+    <Compile Include="SpecialFunctionsTests\ModifiedStruveTests.cs" />
+    <Compile Include="SpecialFunctionsTests\ModifiedBesselTests.cs" />
     <Compile Include="SpecialFunctionsTests\ErfTests.cs" />
     <Compile Include="SpecialFunctionsTests\FactorialTest.cs" />
     <Compile Include="SpecialFunctionsTests\GammaTests.cs" />
@@ -781,6 +779,7 @@
     <Compile Include="StatisticsTests\StatisticsTests.cs" />
     <Compile Include="StatisticsTests\StatTestData.cs" />
     <Compile Include="TrigonometryTest.cs" />
+    <Compile Include="UseLinearAlgebraProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Numerics.IO\Numerics.IO.csproj">
@@ -1062,6 +1061,10 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="App.config" />
+    <None Include="..\..\data\NIST\Meixner.dat">
+      <Link>data\NIST\Meixner.dat</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

@@ -87,7 +87,7 @@ namespace MathNet.Numerics.Statistics
                 Compute(data);
             }
 
-            Median = data.Median();
+            _medianLazy = new Lazy<double>(() => data.Median());
         }
 
         /// <summary>
@@ -119,7 +119,7 @@ namespace MathNet.Numerics.Statistics
                 Compute(data);
             }
 
-            Median = data.Median();
+            _medianLazy = new Lazy<double>(() => data.Median());
         }
 
         /// <summary>
@@ -157,7 +157,13 @@ namespace MathNet.Numerics.Statistics
         /// Gets the sample median.
         /// </summary>
         /// <value>The sample median.</value>
-        public double Median { get; private set; }
+        [Obsolete("Dropped in future versions for performance reasons. Please use Statistics.Median instead.")]
+        public double Median
+        {
+            get { return _medianLazy.Value; }
+        }
+
+        readonly Lazy<double> _medianLazy;
 
         /// <summary>
         /// Gets the sample kurtosis.
@@ -356,10 +362,8 @@ namespace MathNet.Numerics.Statistics
 
                     if (n > 3)
                     {
-                        Kurtosis = (((double)n * (n + 1))
-                                    / ((n - 1) * (n - 2) * (n - 3))
-                                    * (kurtosis / (Variance * Variance)))
-                                   - ((3.0 * (n - 1) * (n - 1)) / ((n - 2) * (n - 3)));
+                        Kurtosis = ((double)n * n - 1) / ((n - 2) * (n - 3))
+                            * (n * kurtosis / (variance * variance) - 3 + 6.0 / (n + 1));
                     }
                 }
             }

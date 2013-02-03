@@ -33,6 +33,7 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Complex
     using System.Linq;
     using System.Numerics;
     using Distributions;
+    using LinearAlgebra.Complex;
     using LinearAlgebra.Generic;
     using NUnit.Framework;
 
@@ -97,7 +98,7 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Complex
             var vector = CreateVector(Data);
             var other = CreateVector(Data.Length);
 
-            vector.CopyTo(other, 2, 2, 2);
+            vector.CopySubVectorTo(other, 2, 2, 2);
 
             AssertHelpers.AreEqual(Complex.Zero, other[0]);
             AssertHelpers.AreEqual(Complex.Zero, other[1]);
@@ -113,7 +114,7 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Complex
         public void CanCopyPartialVectorToSelf()
         {
             var vector = CreateVector(Data);
-            vector.CopyTo(vector, 0, 2, 2);
+            vector.CopySubVectorTo(vector, 0, 2, 2);
 
             AssertHelpers.AreEqual(new Complex(1, 1), vector[0]);
             AssertHelpers.AreEqual(new Complex(2, 1), vector[1]);
@@ -475,8 +476,7 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Complex
         [Test]
         public void RandomWithNumberOfElementsLessThanZeroThrowsArgumentException()
         {
-            var vector = CreateVector(4);
-            Assert.Throws<ArgumentException>(() => vector.Random(-2, new ContinuousUniform()));
+            Assert.Throws<ArgumentOutOfRangeException>(() => DenseVector.CreateRandom(-2, new ContinuousUniform()));
         }
 
         /// <summary>

@@ -32,6 +32,7 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Complex32
     using System.Globalization;
     using System.Linq;
     using Distributions;
+    using LinearAlgebra.Complex32;
     using LinearAlgebra.Generic;
     using NUnit.Framework;
     using Complex32 = Numerics.Complex32;
@@ -97,7 +98,7 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Complex32
             var vector = CreateVector(Data);
             var other = CreateVector(Data.Length);
 
-            vector.CopyTo(other, 2, 2, 2);
+            vector.CopySubVectorTo(other, 2, 2, 2);
 
             AssertHelpers.AreEqual(Complex32.Zero, other[0]);
             AssertHelpers.AreEqual(Complex32.Zero, other[1]);
@@ -113,7 +114,7 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Complex32
         public void CanCopyPartialVectorToSelf()
         {
             var vector = CreateVector(Data);
-            vector.CopyTo(vector, 0, 2, 2);
+            vector.CopySubVectorTo(vector, 0, 2, 2);
 
             AssertHelpers.AreEqual(new Complex32(1, 1), vector[0]);
             AssertHelpers.AreEqual(new Complex32(2, 1), vector[1]);
@@ -229,7 +230,7 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Complex32
         public void CanGetHashCode()
         {
             var vector = CreateVector(new[] { new Complex32(1, 1), new Complex32(2, 1), new Complex32(3, 1), new Complex32(4, 1), new Complex32(5, 1) });
-            Assert.AreEqual(-1051736064, vector.GetHashCode());
+            Assert.AreEqual(-1042380805, vector.GetHashCode());
         }
 
         /// <summary>
@@ -475,8 +476,7 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Complex32
         [Test]
         public void RandomWithNumberOfElementsLessThanZeroThrowsArgumentException()
         {
-            var vector = CreateVector(4);
-            Assert.Throws<ArgumentException>(() => vector.Random(-2, new ContinuousUniform()));
+            Assert.Throws<ArgumentOutOfRangeException>(() => DenseVector.CreateRandom(-2, new ContinuousUniform()));
         }
 
         /// <summary>

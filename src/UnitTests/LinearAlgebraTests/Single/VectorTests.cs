@@ -32,6 +32,7 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Single
     using System.Globalization;
     using Distributions;
     using LinearAlgebra.Generic;
+    using LinearAlgebra.Single;
     using NUnit.Framework;
 
     /// <summary>
@@ -95,7 +96,7 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Single
             var vector = CreateVector(Data);
             var other = CreateVector(Data.Length);
 
-            vector.CopyTo(other, 2, 2, 2);
+            vector.CopySubVectorTo(other, 2, 2, 2);
 
             Assert.AreEqual(0.0f, other[0]);
             Assert.AreEqual(0.0f, other[1]);
@@ -111,7 +112,7 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Single
         public void CanCopyPartialVectorToSelf()
         {
             var vector = CreateVector(Data);
-            vector.CopyTo(vector, 0, 2, 2);
+            vector.CopySubVectorTo(vector, 0, 2, 2);
 
             Assert.AreEqual(1.0f, vector[0]);
             Assert.AreEqual(2.0f, vector[1]);
@@ -489,8 +490,7 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Single
         [Test]
         public void RandomWithNumberOfElementsLessThanZeroThrowsArgumentException()
         {
-            var vector = CreateVector(4);
-            Assert.Throws<ArgumentException>(() => vector.Random(-2, new ContinuousUniform()));
+            Assert.Throws<ArgumentOutOfRangeException>(() => DenseVector.CreateRandom(-2, new ContinuousUniform()));
         }
 
         /// <summary>

@@ -30,6 +30,7 @@ using MathNet.Numerics.LinearAlgebra.Double;
 
 namespace Examples.LinearAlgebraExamples
 {
+
     /// <summary>
     /// Vector data access, copying and conversion examples
     /// </summary>
@@ -124,7 +125,7 @@ namespace Examples.LinearAlgebraExamples
             Console.WriteLine();
 
             // 8. Copy part of vector into another vector. If you need to copy all data then use CopoTy(vector) method.
-            vectorA.CopyTo(cloneA, 3, 3, 4);
+            vectorA.CopySubVectorTo(cloneA, 3, 3, 4);
             Console.WriteLine(@"8. Copy part of vector into another vector");
             Console.WriteLine(cloneA.ToString("#0.00\t", formatProvider));
             Console.WriteLine();

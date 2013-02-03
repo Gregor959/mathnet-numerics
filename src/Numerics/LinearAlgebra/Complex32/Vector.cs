@@ -30,6 +30,7 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
     using Distributions;
     using Generic;
     using Properties;
+    using Storage;
     using Threading;
     using Complex32 = Numerics.Complex32;
 
@@ -41,15 +42,9 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
     {
         /// <summary>
         /// Initializes a new instance of the Vector class. 
-        /// Constructs a <strong>Vector</strong> with the given size.
         /// </summary>
-        /// <param name="size">
-        /// The size of the <strong>Vector</strong> to construct.
-        /// </param>
-        /// <exception cref="ArgumentException">
-        /// If <paramref name="size"/> is less than one.
-        /// </exception>
-        protected Vector(int size) : base(size)
+        protected Vector(VectorStorage<Complex32> storage)
+            : base(storage)
         {
         }
 
@@ -406,58 +401,6 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
             clone.Multiply(1.0f / norm, clone);
 
             return clone;
-        }
-
-        /// <summary>
-        /// Generates a vector with random elements
-        /// </summary>
-        /// <param name="length">Number of elements in the vector.</param>
-        /// <param name="randomDistribution">Continuous Random Distribution or Source</param>
-        /// <returns>
-        /// A vector with n-random elements distributed according
-        /// to the specified random distribution.
-        /// </returns>
-        /// <exception cref="ArgumentException">If the n vector is non-positive.</exception> 
-        public override Vector<Complex32> Random(int length, IContinuousDistribution randomDistribution)
-        {
-            if (length < 1)
-            {
-                throw new ArgumentException(Resources.ArgumentMustBePositive, "length");
-            }
-
-            var vector = CreateVector(length);
-            for (var index = 0; index < length; index++)
-            {
-                vector.At(index, new Complex32(Convert.ToSingle(randomDistribution.Sample()), Convert.ToSingle(randomDistribution.Sample())));
-            }
-
-            return vector;
-        }
-
-        /// <summary>
-        /// Generates a vector with random elements
-        /// </summary>
-        /// <param name="length">Number of elements in the vector.</param>
-        /// <param name="randomDistribution">Continuous Random Distribution or Source</param>
-        /// <returns>
-        /// A vector with n-random elements distributed according
-        /// to the specified random distribution.
-        /// </returns>
-        /// <exception cref="ArgumentException">If the n vector is not positive.</exception> 
-        public override Vector<Complex32> Random(int length, IDiscreteDistribution randomDistribution)
-        {
-            if (length < 1)
-            {
-                throw new ArgumentException(Resources.ArgumentMustBePositive, "length");
-            }
-
-            var vector = CreateVector(length);
-            for (var index = 0; index < length; index++)
-            {
-                vector.At(index, new Complex32(Convert.ToSingle(randomDistribution.Sample()), Convert.ToSingle(randomDistribution.Sample())));
-            }
-
-            return vector;
         }
     }
 }

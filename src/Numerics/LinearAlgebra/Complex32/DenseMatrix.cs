@@ -28,6 +28,7 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
 {
     using System;
     using Algorithms.LinearAlgebra;
+    using Distributions;
     using Generic;
     using Numerics;
     using Properties;
@@ -39,8 +40,6 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
     [Serializable]
     public class DenseMatrix : Matrix
     {
-        readonly DenseColumnMajorMatrixStorage<Complex32> _storage;
-
         /// <summary>
         /// Number of rows.
         /// </summary>
@@ -59,15 +58,17 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
         /// Gets the matrix's data.
         /// </summary>
         /// <value>The matrix's data.</value>
-        readonly Complex32[] _data;
+        readonly Complex32[] _values;
 
-        internal DenseMatrix(DenseColumnMajorMatrixStorage<Complex32> storage)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DenseMatrix"/> class.
+        /// </summary>
+        public DenseMatrix(DenseColumnMajorMatrixStorage<Complex32> storage)
             : base(storage)
         {
-            _storage = storage;
-            _rowCount = _storage.RowCount;
-            _columnCount = _storage.ColumnCount;
-            _data = _storage.Data;
+            _rowCount = storage.RowCount;
+            _columnCount = storage.ColumnCount;
+            _values = storage.Data;
         }
 
         /// <summary>
@@ -109,9 +110,9 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
         public DenseMatrix(int rows, int columns, Complex32 value)
             : this(rows, columns)
         {
-            for (var i = 0; i < _data.Length; i++)
+            for (var i = 0; i < _values.Length; i++)
             {
-                _data[i] = value;
+                _values[i] = value;
             }
         }
 
@@ -139,7 +140,7 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
             {
                 for (var j = 0; j < _columnCount; j++)
                 {
-                    _data[(j * _rowCount) + i] = array[i, j];
+                    _values[(j * _rowCount) + i] = array[i, j];
                 }
             }
         }
@@ -152,16 +153,39 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
         public DenseMatrix(Matrix<Complex32> matrix)
             : this(matrix.RowCount, matrix.ColumnCount)
         {
-            matrix.Storage.CopyTo(Storage, skipClearing: true);
+            matrix.Storage.CopyToUnchecked(Storage, skipClearing: true);
+        }
+
+        /// <summary>
+        /// Create a new dense matrix with values sampled from the provided random distribution.
+        /// </summary>
+        public static DenseMatrix CreateRandom(int rows, int columns, IContinuousDistribution distribution)
+        {
+            var storage = new DenseColumnMajorMatrixStorage<Complex32>(rows, columns);
+            for (var i = 0; i < storage.Data.Length; i++)
+            {
+                storage.Data[i] = new Complex32((float)distribution.Sample(), (float)distribution.Sample());
+            }
+            return new DenseMatrix(storage);
         }
 
         /// <summary>
         /// Gets the matrix's data.
         /// </summary>
         /// <value>The matrix's data.</value>
+        [Obsolete("Use Values instead. Will be removed in future versions.")]
         public Complex32[] Data
         {
-            get { return _data; }
+            get { return _values; }
+        }
+
+        /// <summary>
+        /// Gets the matrix's data.
+        /// </summary>
+        /// <value>The matrix's data.</value>
+        public Complex32[] Values
+        {
+            get { return _values; }
         }
 
         /// <summary>
@@ -203,7 +227,7 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
                 var index = j * _rowCount;
                 for (var i = 0; i < _rowCount; i++)
                 {
-                    ret._data[(i * _columnCount) + j] = _data[index + i];
+                    ret._values[(i * _columnCount) + j] = _values[index + i];
                 }
             }
 
@@ -214,21 +238,21 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
         /// <returns>The L1 norm of the matrix.</returns>
         public override Complex32 L1Norm()
         {
-            return Control.LinearAlgebraProvider.MatrixNorm(Norm.OneNorm, _rowCount, _columnCount, _data);
+            return Control.LinearAlgebraProvider.MatrixNorm(Norm.OneNorm, _rowCount, _columnCount, _values);
         }
 
         /// <summary>Calculates the Frobenius norm of this matrix.</summary>
         /// <returns>The Frobenius norm of this matrix.</returns>
         public override Complex32 FrobeniusNorm()
         {
-            return Control.LinearAlgebraProvider.MatrixNorm(Norm.FrobeniusNorm, _rowCount, _columnCount, _data);
+            return Control.LinearAlgebraProvider.MatrixNorm(Norm.FrobeniusNorm, _rowCount, _columnCount, _values);
         }
 
         /// <summary>Calculates the infinity norm of this matrix.</summary>
         /// <returns>The infinity norm of this matrix.</returns>  
         public override Complex32 InfinityNorm()
         {
-            return Control.LinearAlgebraProvider.MatrixNorm(Norm.InfinityNorm, _rowCount, _columnCount, _data);
+            return Control.LinearAlgebraProvider.MatrixNorm(Norm.InfinityNorm, _rowCount, _columnCount, _values);
         }
 
         #region Static constructors for special matrices.
@@ -246,7 +270,7 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
             var m = new DenseMatrix(order);
             for (var i = 0; i < order; i++)
             {
-                m._data[(i * order) + i] = 1.0f;
+                m._values[(i * order) + i] = 1.0f;
             }
 
             return m;
@@ -268,7 +292,7 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
             }
             else
             {
-                Control.LinearAlgebraProvider.ScaleArray(scalar, _data, denseResult._data);
+                Control.LinearAlgebraProvider.ScaleArray(scalar, _values, denseResult._values);
             }
         }
 
@@ -292,14 +316,14 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
                     Algorithms.LinearAlgebra.Transpose.DontTranspose,
                     Algorithms.LinearAlgebra.Transpose.DontTranspose,
                     1.0f,
-                    _data,
+                    _values,
                     _rowCount,
                     _columnCount,
-                    denseRight.Data,
+                    denseRight.Values,
                     denseRight.Count,
                     1,
                     0.0f,
-                    denseResult.Data);
+                    denseResult.Values);
             }
         }
 
@@ -323,14 +347,14 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
                     Algorithms.LinearAlgebra.Transpose.DontTranspose,
                     Algorithms.LinearAlgebra.Transpose.DontTranspose,
                     1.0f,
-                    _data,
+                    _values,
                     _rowCount,
                     _columnCount,
-                    denseOther._data,
+                    denseOther._values,
                     denseOther._rowCount,
                     denseOther._columnCount,
                     0.0f,
-                    denseResult._data);
+                    denseResult._values);
             }
         }
 
@@ -354,14 +378,14 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
                     Algorithms.LinearAlgebra.Transpose.DontTranspose,
                     Algorithms.LinearAlgebra.Transpose.Transpose,
                     1.0f,
-                    _data,
+                    _values,
                     _rowCount,
                     _columnCount,
-                    denseOther._data,
+                    denseOther._values,
                     denseOther._rowCount,
                     denseOther._columnCount,
                     0.0f,
-                    denseResult._data);
+                    denseResult._values);
             }
         }
 
@@ -385,14 +409,14 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
                     Algorithms.LinearAlgebra.Transpose.Transpose,
                     Algorithms.LinearAlgebra.Transpose.DontTranspose,
                     1.0f,
-                    _data,
+                    _values,
                     _rowCount,
                     _columnCount,
-                    denseRight.Data,
+                    denseRight.Values,
                     denseRight.Count,
                     1,
                     0.0f,
-                    denseResult.Data);
+                    denseResult.Values);
             }
         }
 
@@ -416,14 +440,14 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
                     Algorithms.LinearAlgebra.Transpose.Transpose,
                     Algorithms.LinearAlgebra.Transpose.DontTranspose,
                     1.0f,
-                    _data,
+                    _values,
                     _rowCount,
                     _columnCount,
-                    denseOther._data,
+                    denseOther._values,
                     denseOther._rowCount,
                     denseOther._columnCount,
                     0.0f,
-                    denseResult._data);
+                    denseResult._values);
             }
         }
 
@@ -441,7 +465,7 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
             }
             else
             {
-                Control.LinearAlgebraProvider.ScaleArray(-1, _data, denseResult._data);
+                Control.LinearAlgebraProvider.ScaleArray(-1, _values, denseResult._values);
             }
         }
 
@@ -461,7 +485,7 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
             }
             else
             {
-                Control.LinearAlgebraProvider.PointWiseMultiplyArrays(_data, denseOther._data, denseResult._data);
+                Control.LinearAlgebraProvider.PointWiseMultiplyArrays(_values, denseOther._values, denseResult._values);
             }
         }
 
@@ -481,7 +505,7 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
             }
             else
             {
-                Control.LinearAlgebraProvider.PointWiseDivideArrays(_data, denseOther._data, denseResult._data);
+                Control.LinearAlgebraProvider.PointWiseDivideArrays(_values, denseOther._values, denseResult._values);
             }
         }
 
@@ -502,7 +526,7 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
             }
             else
             {
-                Control.LinearAlgebraProvider.AddArrays(_data, denseOther._data, denseResult._data);
+                Control.LinearAlgebraProvider.AddArrays(_values, denseOther._values, denseResult._values);
             }
         }
 
@@ -521,7 +545,7 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
             }
             else
             {
-                Control.LinearAlgebraProvider.SubtractArrays(_data, denseOther._data, denseResult._data);
+                Control.LinearAlgebraProvider.SubtractArrays(_values, denseOther._values, denseResult._values);
             }
         }
 
@@ -537,7 +561,7 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
                 var index = j * _rowCount;
                 for (var i = 0; i < _rowCount; i++)
                 {
-                    ret._data[(i * _columnCount) + j] = _data[index + i].Conjugate();
+                    ret._values[(i * _columnCount) + j] = _values[index + i].Conjugate();
                 }
             }
 
@@ -559,7 +583,7 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
             var sum = Complex32.Zero;
             for (var i = 0; i < _rowCount; i++)
             {
-                sum += _data[(i * _rowCount) + i];
+                sum += _values[(i * _rowCount) + i];
             }
 
             return sum;

@@ -27,7 +27,6 @@
 namespace MathNet.Numerics.LinearAlgebra.Complex32
 {
     using System;
-    using Distributions;
     using Generic;
     using Numerics;
     using Properties;
@@ -38,7 +37,7 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
     /// </summary>
     [Serializable]
     public abstract class Matrix : Matrix<Complex32>
-    {        
+    {
         /// <summary>
         /// Initializes a new instance of the Matrix class.
         /// </summary>
@@ -68,7 +67,7 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
 
         /// <summary>
         /// Returns the conjugate transpose of this matrix.
-        /// </summary>        
+        /// </summary>
         /// <returns>The conjugate transpose of this matrix.</returns>
         public override Matrix<Complex32> ConjugateTranspose()
         {
@@ -103,7 +102,7 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
         }
 
         /// <summary>Calculates the infinity norm of this matrix.</summary>
-        /// <returns>The infinity norm of this matrix.</returns>   
+        /// <returns>The infinity norm of this matrix.</returns>
         public override Complex32 InfinityNorm()
         {
             var norm = 0.0f;
@@ -297,7 +296,7 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
             {
                 for (var j = 0; j != ColumnCount; j++)
                 {
-                    result[i, j] = -At(i, j);
+                    result.At(i, j, -At(i, j));
                 }
             }
         }
@@ -363,38 +362,6 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
             }
 
             return sum;
-        }
-
-        /// <summary>
-        /// Populates a matrix with random elements.
-        /// </summary>
-        /// <param name="matrix">The matrix to populate.</param>
-        /// <param name="distribution">Continuous Random Distribution to generate elements from.</param>
-        protected override void DoRandom(Matrix<Complex32> matrix, IContinuousDistribution distribution)
-        {
-            for (var i = 0; i < matrix.RowCount; i++)
-            {
-                for (var j = 0; j < matrix.ColumnCount; j++)
-                {
-                    matrix.At(i, j, Convert.ToSingle(distribution.Sample()));
-                }
-            }
-        }
-
-        /// <summary>
-        /// Populates a matrix with random elements.
-        /// </summary>
-        /// <param name="matrix">The matrix to populate.</param>
-        /// <param name="distribution">Continuous Random Distribution to generate elements from.</param>
-        protected override void DoRandom(Matrix<Complex32> matrix, IDiscreteDistribution distribution)
-        {
-            for (var i = 0; i < matrix.RowCount; i++)
-            {
-                for (var j = 0; j < matrix.ColumnCount; j++)
-                {
-                    matrix.At(i, j, distribution.Sample());
-                }
-            }
         }
     }
 }

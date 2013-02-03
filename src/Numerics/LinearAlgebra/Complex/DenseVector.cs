@@ -30,9 +30,11 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
     using System.Collections.Generic;
     using System.Linq;
     using System.Numerics;
+    using Distributions;
     using Generic;
     using NumberTheory;
     using Properties;
+    using Storage;
     using Threading;
 
     /// <summary>
@@ -42,6 +44,26 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
     public class DenseVector : Vector
     {
         /// <summary>
+        /// Number of elements
+        /// </summary>
+        readonly int _length;
+
+        /// <summary>
+        /// Gets the vector's data.
+        /// </summary>
+        readonly Complex[] _values;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DenseVector"/> class.
+        /// </summary>
+        public DenseVector(DenseVectorStorage<Complex> storage)
+            : base(storage)
+        {
+            _length = storage.Length;
+            _values = storage.Data;
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="DenseVector"/> class with a given size.
         /// </summary>
         /// <param name="size">
@@ -50,9 +72,9 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
         /// <exception cref="ArgumentException">
         /// If <paramref name="size"/> is less than one.
         /// </exception>
-        public DenseVector(int size) : base(size)
+        public DenseVector(int size)
+            : this(new DenseVectorStorage<Complex>(size))
         {
-            Data = new Complex[size];
         }
 
         /// <summary>
@@ -68,11 +90,12 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
         /// <exception cref="ArgumentException">
         /// If <paramref name="size"/> is less than one.
         /// </exception>
-        public DenseVector(int size, Complex value) : this(size)
+        public DenseVector(int size, Complex value)
+            : this(size)
         {
-            for (var index = 0; index < Data.Length; index++)
+            for (var index = 0; index < _values.Length; index++)
             {
-                Data[index] = value;
+                _values[index] = value;
             }
         }
 
@@ -83,27 +106,10 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
         /// <param name="other">
         /// The vector to create the new vector from.
         /// </param>
-        public DenseVector(Vector<Complex> other) : this(other.Count)
+        public DenseVector(Vector<Complex> other)
+            : this(other.Count)
         {
-                CommonParallel.For(
-                    0, 
-                    Data.Length, 
-                    index => this[index] = other[index]);
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DenseVector"/> class by
-        /// copying the values from another.
-        /// </summary>
-        /// <param name="other">
-        /// The vector to create the new vector from.
-        /// </param>
-        public DenseVector(DenseVector other) : this(other.Count)
-        {
-            CommonParallel.For(
-                0,
-                Data.Length,
-                index => Data[index] = other.Data[index]);
+            other.Storage.CopyToUnchecked(Storage, skipClearing: true);
         }
 
         /// <summary>
@@ -112,20 +118,31 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
         /// <param name="array">The array to create this vector from.</param>
         /// <remarks>The vector does not copy the array, but keeps a reference to it. Any 
         /// changes to the vector will also change the array.</remarks>
-        public DenseVector(Complex[] array) : base(array.Length)
+        public DenseVector(Complex[] array)
+            : this(new DenseVectorStorage<Complex>(array.Length, array))
         {
-            Data = array;
         }
 
         /// <summary>
-        ///  Gets the vector's internal data.
+        /// Create a new dense vector with values sampled from the provided random distribution.
         /// </summary>
-        /// <value>The vector's internal data.</value>
-        /// <remarks>Changing values in the array also changes the corresponding value in vector. Use with care.</remarks>
-        internal Complex[] Data
+        public static DenseVector CreateRandom(int size, IContinuousDistribution distribution)
         {
-            get;
-            private set;
+            var storage = new DenseVectorStorage<Complex>(size);
+            for (var i = 0; i < storage.Data.Length; i++)
+            {
+                storage.Data[i] = new Complex(distribution.Sample(), distribution.Sample());
+            }
+            return new DenseVector(storage);
+        }
+
+        /// <summary>
+        /// Gets the vector's data.
+        /// </summary>
+        /// <value>The vector's data.</value>
+        public Complex[] Values
+        {
+            get { return _values; }
         }
 
         /// <summary>
@@ -136,14 +153,14 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
         /// <returns>
         /// A reference to the internal date of the given vector.
         /// </returns>
-        public static implicit operator Complex[](DenseVector vector)
+        public static explicit operator Complex[](DenseVector vector)
         {
             if (vector == null)
             {
                 throw new ArgumentNullException();
             }
 
-            return vector.Data;
+            return vector.Values;
         }
 
         /// <summary>
@@ -169,10 +186,10 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
         /// <returns>This vector as a column matrix.</returns>
         public override Matrix<Complex> ToColumnMatrix()
         {
-            var matrix = new DenseMatrix(Count, 1);
-            for (var i = 0; i < Data.Length; i++)
+            var matrix = new DenseMatrix(_length, 1);
+            for (var i = 0; i < _values.Length; i++)
             {
-                matrix.At(i, 0, Data[i]);
+                matrix.At(i, 0, _values[i]);
             }
 
             return matrix;
@@ -184,31 +201,13 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
         /// <returns>This vector as a row matrix.</returns>
         public override Matrix<Complex> ToRowMatrix()
         {
-            var matrix = new DenseMatrix(1, Count);
-            for (var i = 0; i < Data.Length; i++)
+            var matrix = new DenseMatrix(1, _length);
+            for (var i = 0; i < _values.Length; i++)
             {
-                matrix.At(0, i, Data[i]);
+                matrix.At(0, i, _values[i]);
             }
 
             return matrix;
-        }
-
-        /// <summary>Gets or sets the value at the given <paramref name="index"/>.</summary>
-        /// <param name="index">The index of the value to get or set.</param>
-        /// <returns>The value of the vector at the given <paramref name="index"/>.</returns> 
-        /// <exception cref="IndexOutOfRangeException">If <paramref name="index"/> is negative or 
-        /// greater than the size of the vector.</exception>
-        public override Complex this[int index]
-        {
-            get
-            {
-                return Data[index];
-            }
-
-            set
-            {
-                Data[index] = value;
-            }
         }
 
         /// <summary>
@@ -245,49 +244,6 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
         }
 
         /// <summary>
-        /// Copies the values of this vector into the target vector.
-        /// </summary>
-        /// <param name="target">
-        /// The vector to copy elements into.
-        /// </param>
-        /// <exception cref="ArgumentNullException">
-        /// If <paramref name="target"/> is <see langword="null"/>.
-        /// </exception>
-        /// <exception cref="ArgumentException">
-        /// If <paramref name="target"/> is not the same size as this vector.
-        /// </exception>
-        public override void CopyTo(Vector<Complex> target)
-        {
-            if (target == null)
-            {
-                throw new ArgumentNullException("target");
-            }
-
-            if (Count != target.Count)
-            {
-                throw new ArgumentException(Resources.ArgumentVectorsSameLength, "target");
-            }
-
-            if (ReferenceEquals(this, target))
-            {
-                return;
-            }
-
-            var otherVector = target as DenseVector;
-            if (otherVector == null)
-            {
-                CommonParallel.For(
-                    0,
-                    Data.Length,
-                    index => target[index] = Data[index]);
-            }
-            else
-            {
-                Array.Copy(Data, 0, otherVector.Data, 0, Data.Length);
-            }
-        }
-
-        /// <summary>
         /// Adds a scalar to each element of the vector and stores the result in the result vector.
         /// </summary>
         /// <param name="scalar">The scalar to add.</param>
@@ -303,8 +259,8 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
             {
                 CommonParallel.For(
                     0,
-                    Data.Length,
-                    index => dense.Data[index] = Data[index] + scalar);
+                    _values.Length,
+                    index => dense._values[index] = _values[index] + scalar);
             }
         }
 
@@ -319,7 +275,7 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
             var odense = other as DenseVector;
             if (rdense != null && odense != null)
             {
-                Control.LinearAlgebraProvider.AddVectorToScaledVector(Data, Complex.One, odense.Data, rdense.Data);
+                Control.LinearAlgebraProvider.AddVectorToScaledVector(_values, Complex.One, odense.Values, rdense.Values);
             }
             else
             {
@@ -388,8 +344,8 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
             {
                 CommonParallel.For(
                     0,
-                    Data.Length,
-                    index => dense.Data[index] = Data[index] - scalar);
+                    _values.Length,
+                    index => dense._values[index] = _values[index] - scalar);
             }
         }
 
@@ -404,7 +360,7 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
             var odense = other as DenseVector;
             if (rdense != null && odense != null)
             {
-                Control.LinearAlgebraProvider.AddVectorToScaledVector(Data, -1.0, odense.Data, rdense.Data);
+                Control.LinearAlgebraProvider.AddVectorToScaledVector(_values, -1.0, odense.Values, rdense.Values);
             }
             else
             {
@@ -463,11 +419,11 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
         /// <remarks>Added as an alternative to the unary negation operator.</remarks>
         public override Vector<Complex> Negate()
         {
-            var result = new DenseVector(Count);
+            var result = new DenseVector(_length);
             CommonParallel.For(
                 0, 
-                Data.Length, 
-                index => result[index] = -Data[index]);
+                _values.Length,
+                index => result[index] = -_values[index]);
 
             return result;
         }
@@ -487,7 +443,7 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
             }
             else
             {
-                Control.LinearAlgebraProvider.ScaleArray(scalar, Data, denseResult.Data);
+                Control.LinearAlgebraProvider.ScaleArray(scalar, _values, denseResult.Values);
             }
         }
 
@@ -501,7 +457,7 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
         {
             var denseVector = other as DenseVector;
 
-            return denseVector == null ? base.DoDotProduct(other) : Control.LinearAlgebraProvider.DotProduct(Data, denseVector.Data);
+            return denseVector == null ? base.DoDotProduct(other) : Control.LinearAlgebraProvider.DotProduct(_values, denseVector.Values);
         }
 
         /// <summary>
@@ -563,7 +519,7 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
                 throw new ArgumentException(Resources.ArgumentVectorsSameLength, "rightSide");
             }
 
-            return Control.LinearAlgebraProvider.DotProduct(leftSide.Data, rightSide.Data);
+            return Control.LinearAlgebraProvider.DotProduct(leftSide.Values, rightSide.Values);
         }
 
         /// <summary>
@@ -590,10 +546,10 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
         public override int AbsoluteMinimumIndex()
         {
             var index = 0;
-            var min = Data[index].Magnitude;
-            for (var i = 1; i < Count; i++)
+            var min = _values[index].Magnitude;
+            for (var i = 1; i < _length; i++)
             {
-                var test = Data[i].Magnitude;
+                var test = _values[i].Magnitude;
                 if (test < min)
                 {
                     index = i;
@@ -610,7 +566,7 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
         /// <returns>The value of the absolute minimum element.</returns>
         public override Complex AbsoluteMinimum()
         {
-            return Data[AbsoluteMinimumIndex()].Magnitude;
+            return _values[AbsoluteMinimumIndex()].Magnitude;
         }
 
         /// <summary>
@@ -619,7 +575,7 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
         /// <returns>The value of the absolute maximum element.</returns>
         public override Complex AbsoluteMaximum()
         {
-            return Data[AbsoluteMaximumIndex()].Magnitude;
+            return _values[AbsoluteMaximumIndex()].Magnitude;
         }
 
         /// <summary>
@@ -629,10 +585,10 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
         public override int AbsoluteMaximumIndex()
         {
             var index = 0;
-            var max = Data[index].Magnitude;
-            for (var i = 1; i < Count; i++)
+            var max = _values[index].Magnitude;
+            for (var i = 1; i < _length; i++)
             {
-                var test = Data[i].Magnitude;
+                var test = _values[i].Magnitude;
                 if (test > max)
                 {
                     index = i;
@@ -656,7 +612,7 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
         /// <exception cref="ArgumentException">If <paramref name="length"/> is not positive.</exception>
         public override Vector<Complex> SubVector(int index, int length)
         {
-            if (index < 0 || index >= Count)
+            if (index < 0 || index >= _length)
             {
                 throw new ArgumentOutOfRangeException("index");
             }
@@ -666,7 +622,7 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
                 throw new ArgumentOutOfRangeException("length");
             }
 
-            if (index + length > Count)
+            if (index + length > _length)
             {
                 throw new ArgumentOutOfRangeException("length");
             }
@@ -675,8 +631,8 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
 
             CommonParallel.For(
                 index, 
-                index + length, 
-                i => result.Data[i - index] = Data[i]);
+                index + length,
+                i => result._values[i - index] = _values[i]);
             return result;
         }
 
@@ -693,7 +649,7 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
                 throw new ArgumentNullException("values");
             }
 
-            if (values.Length != Count)
+            if (values.Length != _length)
             {
                 throw new ArgumentException(Resources.ArgumentVectorsSameLength, "values");
             }
@@ -701,7 +657,7 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
             CommonParallel.For(
                 0, 
                 values.Length, 
-                i => Data[i] = values[i]);
+                i => _values[i] = values[i]);
         }
 
         /// <summary>
@@ -712,9 +668,9 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
         {
             var sum = Complex.Zero;
 
-            for (var i = 0; i < Count; i++)
+            for (var i = 0; i < _length; i++)
             {
-                sum += Data[i];
+                sum += _values[i];
             }
 
             return sum;
@@ -728,9 +684,9 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
         {
             var sum = Complex.Zero;
 
-            for (var i = 0; i < Count; i++)
+            for (var i = 0; i < _length; i++)
             {
-                sum += Data[i].Magnitude;
+                sum += _values[i].Magnitude;
             }
 
             return sum;
@@ -752,8 +708,8 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
             {
                 CommonParallel.For(
                     0,
-                    Data.Length,
-                    index => dense.Data[index] = Data[index] * other[index]);
+                    _values.Length,
+                    index => dense._values[index] = _values[index] * other[index]);
             }
         }
 
@@ -774,8 +730,8 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
             {
                 CommonParallel.For(
                     0,
-                    Data.Length,
-                    index => dense.Data[index] = Data[index] / other[index]);
+                    _values.Length,
+                    index => dense._values[index] = _values[index] / other[index]);
             }
         }
 
@@ -807,7 +763,7 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
                 {
                     for (var j = 0; j < v.Count; j++)
                     {
-                        matrix.At(i, j, u.Data[i] * v.Data[j]);
+                        matrix.At(i, j, u._values[i] * v._values[j]);
                     }
                 });
             return matrix;
@@ -845,19 +801,19 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
 
             if (2.0 == p)
             {
-                return Data.Aggregate(Complex.Zero, SpecialFunctions.Hypotenuse).Magnitude;
+                return _values.Aggregate(Complex.Zero, SpecialFunctions.Hypotenuse).Magnitude;
             }
 
             if (Double.IsPositiveInfinity(p))
             {
-                return CommonParallel.Aggregate(Data, (i, v) => v.Magnitude, Math.Max, 0d);
+                return CommonParallel.Aggregate(_values, (i, v) => v.Magnitude, Math.Max, 0d);
             }
 
             var sum = 0.0;
 
-            for (var i = 0; i < Count; i++)
+            for (var i = 0; i < _length; i++)
             {
-                sum += Math.Pow(Data[i].Magnitude, p);
+                sum += Math.Pow(_values[i].Magnitude, p);
             }
 
             return Math.Pow(sum, 1.0 / p);
@@ -1023,14 +979,6 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
         #endregion
 
         /// <summary>
-        /// Resets all values to zero.
-        /// </summary>
-        public override void Clear()
-        {
-            Array.Clear(Data, 0, Data.Length);
-        }
-
-        /// <summary>
         /// Conjugates vector and save result to <paramref name="target"/>
         /// </summary>
         /// <param name="target">Target vector</param>
@@ -1046,24 +994,9 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
             {
                 CommonParallel.For(
                     0,
-                    Count,
-                    index => denseTarget.Data[index] = Data[index].Conjugate());
+                    _length,
+                    index => denseTarget._values[index] = _values[index].Conjugate());
             }
-        }
-        /// <summary>Gets the value at the given <paramref name="index"/>.</summary>
-        /// <param name="index">The index of the value to get or set.</param>
-        /// <returns>The value of the vector at the given <paramref name="index"/>.</returns> 
-        internal protected override Complex At(int index)
-        {
-            return Data[index];
-        }
-
-        /// <summary>Sets the <paramref name="value"/> at the given <paramref name="index"/>.</summary>
-        /// <param name="index">The index of the value to get or set.</param>
-        /// <param name="value">The value to set.</param>
-        internal protected override void At(int index, Complex value)
-        {
-            Data[index] = value;
         }
 
         /// <summary>

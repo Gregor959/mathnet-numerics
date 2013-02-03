@@ -19,7 +19,7 @@
     <Optimize>false</Optimize>
     <Tailcalls>false</Tailcalls>
     <OutputPath>..\..\out\debug\Net40\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <WarningLevel>3</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -38,7 +38,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <Tailcalls>true</Tailcalls>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;STRONGNAME</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>..\..\out\lib\Net40\MathNet.Numerics.FSharp.xml</DocumentationFile>
     <OutputPath>bin\Release-Signed\</OutputPath>
@@ -50,15 +50,19 @@
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets" Condition="(!Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets')) And (Exists('$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets'))" />
   <Import Project="$(MSBuildExtensionsPath32)\FSharp\1.0\Microsoft.FSharp.Targets" Condition="(!Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets')) And (!Exists('$(MSBuildExtensionsPath32)\..\Microsoft F#\v4.0\Microsoft.FSharp.Targets')) And (Exists('$(MSBuildExtensionsPath32)\FSharp\1.0\Microsoft.FSharp.Targets'))" />
   <ItemGroup>
-    <Compile Include="Extensions.fs" />
-    <Compile Include="DenseVector.fs" />
-    <Compile Include="DenseMatrix.fs" />
-    <Compile Include="SparseMatrix.fs" />
-    <Compile Include="SparseVector.fs" />
-    <Compile Include="Vector.fs" />
-    <Compile Include="Matrix.fs" />
-    <Compile Include="Main.fs" />
     <Compile Include="AssemblyInfo.fs" />
+    <Compile Include="Random.fs" />
+    <Compile Include="Distributions.fs" />
+    <Compile Include="LinearAlgebra.fs" />
+    <Compile Include="LinearAlgebra.Double.Vector.fs" />
+    <Compile Include="LinearAlgebra.Double.Matrix.fs" />
+    <Compile Include="LinearAlgebra.Double.fs" />
+    <Compile Include="Complex.fsi" />
+    <Compile Include="Complex.fs" />
+    <Compile Include="BigIntegerExtensions.fs" />
+    <Compile Include="BigRational.fsi" />
+    <Compile Include="BigRational.fs" />
+    <Compile Include="RandomVariable.fs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="FSharp.Core" />

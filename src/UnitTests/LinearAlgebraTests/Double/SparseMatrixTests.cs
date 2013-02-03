@@ -29,6 +29,7 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Double
     using System;
     using System.Collections.Generic;
     using LinearAlgebra.Double;
+    using LinearAlgebra.Double.IO;
     using NUnit.Framework;
 
     /// <summary>
@@ -141,22 +142,6 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Double
                 for (var j = 0; j < TestData2D[name].GetLength(1); j++)
                 {
                     Assert.AreEqual(TestData2D[name][i, j], matrix[i, j]);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Can create a matrix with uniform values.
-        /// </summary>
-        [Test]
-        public void CanCreateMatrixWithUniformValues()
-        {
-            var matrix = new SparseMatrix(10, 10, 10.0);
-            for (var i = 0; i < matrix.RowCount; i++)
-            {
-                for (var j = 0; j < matrix.ColumnCount; j++)
-                {
-                    Assert.AreEqual(matrix[i, j], 10.0);
                 }
             }
         }
@@ -314,6 +299,40 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Double
             Assert.AreEqual(Order, matrix.RowCount);
             Assert.AreEqual(Order, matrix.ColumnCount);
             Assert.DoesNotThrow(() => matrix[0, 0] = 1);
+        }
+
+        [Test]
+        public void CanClearSubMatrixEx()
+        {
+            var dmr = new MatlabMatrixReader("./data/Matlab/sparse-small.mat");
+            var matrix = dmr.ReadMatrix("S");
+            var matrix2 = matrix.Clone();
+
+            // Zero the 40th row
+            for (int column = 0; column < matrix.ColumnCount; column++)
+            {
+                matrix.At(39, column, 0.0);
+            }
+            matrix2.ClearRow(39);
+
+            // Zero the 4th column
+            for (int row = 0; row < matrix.RowCount; row++)
+            {
+                matrix.At(row, 3, 0.0);
+            }
+            matrix2.ClearColumn(3);
+
+            // Zero submatrix rows 20..30 columns 8..10
+            for (int row = 19; row <= 29; row++)
+            {
+                for (int column = 7; column <= 9; column++)
+                {
+                    matrix.At(row, column, 0.0);
+                }
+            }
+            matrix2.ClearSubMatrix(19, 11, 7, 3);
+
+            Assert.That(matrix2.Equals(matrix), Is.True);
         }
     }
 }

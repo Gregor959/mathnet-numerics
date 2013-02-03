@@ -43,7 +43,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <DefineConstants>TRACE;DEBUG;SYSNUMERICS</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>
@@ -57,7 +57,7 @@
     <SignAssembly>false</SignAssembly>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <DefineConstants>TRACE;SYSNUMERICS</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
@@ -70,7 +70,7 @@
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <Optimize>true</Optimize>
-    <DefineConstants>TRACE;SYSNUMERICS;STRONGNAME</DefineConstants>
+    <DefineConstants>TRACE;STRONGNAME</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
@@ -85,22 +85,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Algorithms\LinearAlgebra\Acml\AcmlLinearAlgebraProvider.Complex.cs">
-    </Compile>
-    <Compile Include="Algorithms\LinearAlgebra\Acml\AcmlLinearAlgebraProvider.Complex32.cs">
-    </Compile>
-    <Compile Include="Algorithms\LinearAlgebra\Acml\AcmlLinearAlgebraProvider.double.cs">
-    </Compile>
-    <Compile Include="Algorithms\LinearAlgebra\Acml\AcmlLinearAlgebraProvider.float.cs">
-    </Compile>
-    <Compile Include="Algorithms\LinearAlgebra\Acml\SafeNativeMethods.cs">
-    </Compile>
-    <Compile Include="Algorithms\LinearAlgebra\GotoBlas\GotoBlasLinearAlgebraProvider.Common.cs" />
-    <Compile Include="Algorithms\LinearAlgebra\GotoBlas\GotoBlasLinearAlgebraProvider.Complex.cs" />
-    <Compile Include="Algorithms\LinearAlgebra\GotoBlas\GotoBlasLinearAlgebraProvider.Complex32.cs" />
-    <Compile Include="Algorithms\LinearAlgebra\GotoBlas\GotoBlasLinearAlgebraProvider.double.cs" />
-    <Compile Include="Algorithms\LinearAlgebra\GotoBlas\GotoBlasLinearAlgebraProvider.float.cs" />
-    <Compile Include="Algorithms\LinearAlgebra\GotoBlas\SafeNativeMethods.cs" />
     <Compile Include="Algorithms\LinearAlgebra\ManagedLinearAlgebraProvider.Complex32.cs" />
     <Compile Include="Algorithms\LinearAlgebra\ManagedLinearAlgebraProvider.Complex.cs" />
     <Compile Include="Algorithms\LinearAlgebra\ManagedLinearAlgebraProvider.Single.cs" />
@@ -120,6 +104,11 @@
     <Compile Include="Constants.cs" />
     <Compile Include="Control.cs" />
     <Compile Include="Complex32.cs" />
+    <Compile Include="SpecialFunctions\Evaluate.cs" />
+    <Compile Include="SpecialFunctions\ModifiedStruve.cs" />
+    <Compile Include="SpecialFunctions\ModifiedBessel.cs" />
+    <Compile Include="SpecialFunctions\Logistic.cs" />
+    <Compile Include="TargetedPatchingOptOutAttribute.cs" />
     <Compile Include="Distributions\Continuous\Cauchy.cs" />
     <Compile Include="Distributions\Continuous\Chi.cs" />
     <Compile Include="Distributions\Continuous\ChiSquare.cs" />
@@ -140,6 +129,7 @@
     <Compile Include="Distributions\Multivariate\InverseWishart.cs" />
     <Compile Include="Distributions\Multivariate\MatrixNormal.cs" />
     <Compile Include="Distributions\Multivariate\Wishart.cs" />
+    <Compile Include="LinearAlgebra\Storage\SparseVectorStorage.cs" />
     <Compile Include="LinearAlgebra\Storage\DenseVectorStorage.cs" />
     <Compile Include="LinearAlgebra\Storage\MatrixStorage.Validation.cs" />
     <Compile Include="LinearAlgebra\Complex32\ExtensionMethods.cs" />
@@ -426,7 +416,7 @@
     <Compile Include="Signals\SignalGenerator.Chebyshev.cs" />
     <Compile Include="Signals\SignalGenerator.Equidistant.cs" />
     <Compile Include="Sorting.cs" />
-    <Compile Include="SpecialFunctions.cs" />
+    <Compile Include="SpecialFunctions\Harmonic.cs" />
     <Compile Include="SpecialFunctions\Beta.cs" />
     <Compile Include="SpecialFunctions\Erf.cs" />
     <Compile Include="SpecialFunctions\Factorial.cs" />

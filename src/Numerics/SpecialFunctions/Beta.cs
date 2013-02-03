@@ -30,10 +30,12 @@
 
 // <contribution>
 //    Cephes Math Library, Stephen L. Moshier
-//    ALGLIB, Sergey Bochkanov
+//    ALGLIB 2.0.1, Sergey Bochkanov
 // </contribution>
 
+// ReSharper disable CheckNamespace
 namespace MathNet.Numerics
+// ReSharper restore CheckNamespace
 {
     using System;
     using Properties;

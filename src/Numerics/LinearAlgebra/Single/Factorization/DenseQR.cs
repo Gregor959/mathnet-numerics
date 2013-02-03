@@ -28,6 +28,8 @@
 // OTHER DEALINGS IN THE SOFTWARE.
 // </copyright>
 
+using MathNet.Numerics.LinearAlgebra.Generic.Factorization;
+
 namespace MathNet.Numerics.LinearAlgebra.Single.Factorization
 {
     using System;
@@ -59,9 +61,10 @@ namespace MathNet.Numerics.LinearAlgebra.Single.Factorization
         /// QR factorization when the constructor is called and cache it's factorization.
         /// </summary>
         /// <param name="matrix">The matrix to factor.</param>
+        /// <param name="method">The QR factorization method to use.</param>
         /// <exception cref="ArgumentNullException">If <paramref name="matrix"/> is <c>null</c>.</exception>
         /// <exception cref="ArgumentException">If <paramref name="matrix"/> row count is less then column count</exception>
-        public DenseQR(DenseMatrix matrix)
+        public DenseQR(DenseMatrix matrix, QRMethod method = QRMethod.Full)
         {
             if (matrix == null)
             {
@@ -73,10 +76,23 @@ namespace MathNet.Numerics.LinearAlgebra.Single.Factorization
                 throw Matrix.DimensionsDontMatch<ArgumentException>(matrix);
             }
 
-            MatrixR = matrix.Clone();
-            MatrixQ = new DenseMatrix(matrix.RowCount);
+            QrMethod = method;
             Tau = new float[Math.Min(matrix.RowCount, matrix.ColumnCount)];
-            Control.LinearAlgebraProvider.QRFactor(((DenseMatrix)MatrixR).Data, matrix.RowCount, matrix.ColumnCount, ((DenseMatrix)MatrixQ).Data, Tau);
+
+            if (method == QRMethod.Full)
+            {
+                MatrixR = matrix.Clone();
+                MatrixQ = new DenseMatrix(matrix.RowCount);
+                Control.LinearAlgebraProvider.QRFactor(((DenseMatrix)MatrixR).Values, matrix.RowCount, matrix.ColumnCount,
+                                                       ((DenseMatrix)MatrixQ).Values, Tau);
+            }
+            else
+            {
+                MatrixQ = matrix.Clone();
+                MatrixR = new DenseMatrix(matrix.ColumnCount);
+                Control.LinearAlgebraProvider.ThinQRFactor(((DenseMatrix)MatrixQ).Values, matrix.RowCount, matrix.ColumnCount,
+                                                       ((DenseMatrix)MatrixR).Values, Tau);
+            }
         }
 
         /// <summary>
@@ -127,7 +143,7 @@ namespace MathNet.Numerics.LinearAlgebra.Single.Factorization
                 throw new NotSupportedException("Can only do QR factorization for dense matrices at the moment.");
             }
 
-            Control.LinearAlgebraProvider.QRSolveFactored(((DenseMatrix)MatrixQ).Data, ((DenseMatrix)MatrixR).Data, MatrixR.RowCount, MatrixR.ColumnCount, Tau, dinput.Data, input.ColumnCount, dresult.Data);
+            Control.LinearAlgebraProvider.QRSolveFactored(((DenseMatrix)MatrixQ).Values, ((DenseMatrix)MatrixR).Values, MatrixR.RowCount, MatrixR.ColumnCount, Tau, dinput.Values, input.ColumnCount, dresult.Values, QrMethod);
         }
 
         /// <summary>
@@ -172,7 +188,7 @@ namespace MathNet.Numerics.LinearAlgebra.Single.Factorization
                 throw new NotSupportedException("Can only do QR factorization for dense vectors at the moment.");
             }
 
-            Control.LinearAlgebraProvider.QRSolveFactored(((DenseMatrix)MatrixQ).Data, ((DenseMatrix)MatrixR).Data, MatrixR.RowCount, MatrixR.ColumnCount, Tau, dinput.Data, 1, dresult.Data);
+            Control.LinearAlgebraProvider.QRSolveFactored(((DenseMatrix)MatrixQ).Values, ((DenseMatrix)MatrixR).Values, MatrixR.RowCount, MatrixR.ColumnCount, Tau, dinput.Values, 1, dresult.Values, QrMethod);
         }
     }
 }

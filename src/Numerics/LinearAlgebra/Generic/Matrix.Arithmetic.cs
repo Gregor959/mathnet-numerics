@@ -571,7 +571,7 @@ namespace MathNet.Numerics.LinearAlgebra.Generic
         /// <exception cref="ArgumentException">If <c>this.RowCount != rightSide.Count</c>.</exception>
         public virtual Vector<T> TransposeThisAndMultiply(Vector<T> rightSide)
         {
-            var ret = CreateVector(RowCount);
+            var ret = CreateVector(ColumnCount);
             TransposeThisAndMultiply(rightSide, ret);
             return ret;
         }
@@ -1101,76 +1101,6 @@ namespace MathNet.Numerics.LinearAlgebra.Generic
 
             return leftSide.Modulus(rightSide);
         }
-
-        /// <summary>
-        /// Generates a matrix with random elements.
-        /// </summary>
-        /// <param name="numberOfRows">Number of rows.</param>
-        /// <param name="numberOfColumns">Number of columns.</param>
-        /// <param name="distribution">Continuous Random Distribution to generate elements from.</param>
-        /// <returns>
-        /// An <c>numberOfRows</c>-by-<c>numberOfColumns</c> matrix with elements distributed according to the provided distribution.
-        /// </returns>
-        /// <exception cref="ArgumentException">If the parameter <paramref name="numberOfRows"/> is not positive.</exception>
-        /// <exception cref="ArgumentException">If the parameter <paramref name="numberOfColumns"/> is not positive.</exception>
-        public virtual Matrix<T> Random(int numberOfRows, int numberOfColumns, IContinuousDistribution distribution)
-        {
-            if (numberOfRows < 1)
-            {
-                throw new ArgumentException(Resources.ArgumentMustBePositive, "numberOfRows");
-            }
-
-            if (numberOfColumns < 1)
-            {
-                throw new ArgumentException(Resources.ArgumentMustBePositive, "numberOfColumns");
-            }
-
-            var matrix = CreateMatrix(numberOfRows, numberOfColumns);
-            DoRandom(matrix, distribution);
-            return matrix;
-        }
-
-        /// <summary>
-        /// Populates a matrix with random elements.
-        /// </summary>
-        /// <param name="matrix">The matrix to populate.</param>
-        /// <param name="distribution">Continuous Random Distribution to generate elements from.</param>
-       protected abstract void DoRandom(Matrix<T> matrix, IContinuousDistribution distribution);
-
-        /// <summary>
-        /// Generates a matrix with random elements.
-        /// </summary>
-        /// <param name="numberOfRows">Number of rows.</param>
-        /// <param name="numberOfColumns">Number of columns.</param>
-        /// <param name="distribution">Continuous Random Distribution or Source</param>
-        /// <returns>
-        /// An <c>numberOfRows</c>-by-<c>numberOfColumns</c> matrix with elements distributed according to the provided distribution.
-        /// </returns>
-        /// <exception cref="ArgumentException">If the parameter <paramref name="numberOfRows"/> is not positive.</exception>
-        /// <exception cref="ArgumentException">If the parameter <paramref name="numberOfColumns"/> is not positive.</exception>
-        public virtual Matrix<T> Random(int numberOfRows, int numberOfColumns, IDiscreteDistribution distribution)
-        {
-            if (numberOfRows < 1)
-            {
-                throw new ArgumentException(Resources.ArgumentMustBePositive, "numberOfRows");
-            }
-
-            if (numberOfColumns < 1)
-            {
-                throw new ArgumentException(Resources.ArgumentMustBePositive, "numberOfColumns");
-            }
-
-            var matrix = CreateMatrix(numberOfRows, numberOfColumns);
-            DoRandom(matrix, distribution);
-            return matrix;
-        }
-
-        /// <summary>
-        /// Populates a matrix with random elements.
-        /// </summary>
-        /// <param name="matrix">The matrix to populate.</param>
-        /// <param name="distribution">Continuous Random Distribution to generate elements from.</param>
-        protected abstract void DoRandom(Matrix<T> matrix, IDiscreteDistribution distribution);
 
         /// <summary>
         /// Computes the trace of this matrix.

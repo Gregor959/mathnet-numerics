@@ -35,7 +35,7 @@ open System.Resources;
 open System.Runtime.CompilerServices
 open System.Runtime.InteropServices
 
-[<assembly: AssemblyTitle("Math.NET Numerics F# Modules")>]
+[<assembly: AssemblyTitle("Math.NET Numerics for F#")>]
 [<assembly: AssemblyDescription("F# Modules for Math.NET Numerics, providing methods and algorithms for numerical computations in science, engineering and every day use.")>]
 [<assembly: AssemblyConfiguration("")>]
 [<assembly: AssemblyCompany("Math.NET Project")>]
@@ -43,9 +43,14 @@ open System.Runtime.InteropServices
 [<assembly: AssemblyCopyright("Copyright © Math.NET Project")>]
 [<assembly: AssemblyTrademark("")>]
 [<assembly: AssemblyCulture("")>]
-[<assembly: ComVisible(false)>]
-[<assembly: Guid("048BC4EB-CE2B-4040-9967-4784F5405B0F")>]
 [<assembly: NeutralResourcesLanguage("en")>]
 [<assembly: AssemblyVersion("1.0.0.0")>]
 [<assembly: AssemblyFileVersion("1.0.0.0")>]
+
+#if PORTABLE
+#else
+[<assembly: ComVisible(false)>]
+[<assembly: Guid("048BC4EB-CE2B-4040-9967-4784F5405B0F")>]
+#endif
+
 ()
