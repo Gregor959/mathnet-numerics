@@ -1412,7 +1412,8 @@ namespace MathNet.Numerics.LinearAlgebra.Single
         {
             for (var i = 0; i < NonZerosCount; i++)
             {
-                yield return new Tuple<int, float>(_nonZeroIndices[i]+1, _nonZeroValues[i]);
+                yield return new Tuple<int, float>(_storage.Indices[i]+1, _storage.Values[i]);
+
             }
         }
 

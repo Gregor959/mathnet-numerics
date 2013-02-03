@@ -603,7 +603,7 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Complex32
 
             Func<Complex32, Complex32> multiplywithMinus1 = a => -a;
 
-            vector.ApplyOnIndeces(indEnum, multiplywithMinus1);
+            vector.ApplyOnIndices(indEnum, multiplywithMinus1);
 
 
             //make sure none are found now.

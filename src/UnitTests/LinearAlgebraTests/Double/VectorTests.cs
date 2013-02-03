@@ -618,7 +618,7 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Double
 
             Func<double, double> multiplywithMinus1 = a => -a;
 
-            vector.ApplyOnIndeces(indEnum, multiplywithMinus1);
+            vector.ApplyOnIndices(indEnum, multiplywithMinus1);
 
 
             //make sure none are found now.

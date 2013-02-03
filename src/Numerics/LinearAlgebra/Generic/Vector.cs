@@ -1626,7 +1626,8 @@ namespace MathNet.Numerics.LinearAlgebra.Generic
             if (indxs == null) throw new ArgumentNullException("indxs");
 
             foreach (int i in indxs)
-            { this[i]= value; 
+            { 
+                At(i,value); 
             }
         }
 
@@ -1636,13 +1637,13 @@ namespace MathNet.Numerics.LinearAlgebra.Generic
         /// <param name="indxs">The enumerables of ints , using 0 based indexing</param>
         /// <param name="fun"> The function </param>
         /// <exception cref="ArgumentNullException">If indxs is <see langword="null" />.</exception>
-        public virtual void ApplyOnIndeces(IEnumerable<int> indxs, Func<T, T> fun)
+        public virtual void ApplyOnIndices(IEnumerable<int> indxs, Func<T, T> fun)
         {
             if (indxs == null) throw new ArgumentNullException("indxs");
 
             foreach (int i in indxs)
             {
-                this[i]= fun(this[i]);
+                At( i,  fun(At(i)) );
             }
         }
 

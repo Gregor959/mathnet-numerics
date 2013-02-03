@@ -1078,9 +1078,9 @@ namespace MathNet.Numerics.LinearAlgebra.Double
 
             for (var index = 0; index < Count; index++)
             {
-                if (matchCondition(this.Data[index]))
+                if (matchCondition(this._values[index]))
                 {
-                    result.Data[index] = 1.0;
+                    result._values[index] = 1.0;
                 }
             }
 
@@ -1109,14 +1109,6 @@ namespace MathNet.Numerics.LinearAlgebra.Double
             return new DenseVector(size, 1.0);
         }
 
-        /// <summary>
-        /// Gets the Vector's data.
-        /// </summary>
-        /// <value>The vector's data.</value>
-        public double[] DataStore
-        {
-            get { return Data; }
-        }
-    
+        
     }
 }

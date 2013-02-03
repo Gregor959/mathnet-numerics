@@ -826,9 +826,9 @@ namespace MathNet.Numerics.LinearAlgebra.Double
             {
                 for (var row = 0; row < RowCount; row++)
                 {
-                    if (matchCondition(Data[i]))
+                    if (matchCondition(_values[i]))
                     {
-                        outMatrix.Data[i] = 1.0;
+                        outMatrix._values[i] = 1.0;
                     }
                     i++;
                 }
@@ -861,7 +861,7 @@ namespace MathNet.Numerics.LinearAlgebra.Double
                 {
                     if (column != columnIndex)
                     {
-                        outMatrix.Data[targetIndex] = Data[sourceIndex];
+                        outMatrix._values[targetIndex] = _values[sourceIndex];
                         targetIndex++;
                     }//else skip assignment. But always increment the sourceIndex 
                     sourceIndex++;
@@ -896,7 +896,7 @@ namespace MathNet.Numerics.LinearAlgebra.Double
                 {
                     if (row != rowIndex)
                     {
-                        outMatrix.Data[targetIndex] = Data[sourceIndex];
+                        outMatrix._values[targetIndex] = _values[sourceIndex];
                         targetIndex++;
                     }//else skip assignment. But always increment the sourceIndex 
                     sourceIndex++;
@@ -938,7 +938,7 @@ namespace MathNet.Numerics.LinearAlgebra.Double
                 {
                     if (row != index && column != index)
                     {
-                        outMatrix.Data[targetIndex] = Data[sourceIndex];
+                        outMatrix._values[targetIndex] = _values[sourceIndex];
                         targetIndex++;
                     }//else skip assignment. But always increment the sourceIndex 
                     sourceIndex++;

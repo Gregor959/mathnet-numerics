@@ -28,7 +28,7 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Complex32
 {
     using NUnit.Framework;
     using System;
-
+    using MathNet.Numerics;
     /// <summary>
     /// Abstract class with the common set of matrix tests
     /// </summary>

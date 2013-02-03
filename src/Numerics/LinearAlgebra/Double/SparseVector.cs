@@ -1414,7 +1414,7 @@ namespace MathNet.Numerics.LinearAlgebra.Double
         {
             for (var i = 0; i < NonZerosCount; i++)
             {
-                yield return new Tuple<int, double>(_nonZeroIndices[i]+1, _nonZeroValues[i]);
+                yield return new Tuple<int, double>(_storage.Indices[i] + 1, _storage.Values[i]);
             }
         }
 

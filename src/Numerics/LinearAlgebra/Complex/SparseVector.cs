@@ -1361,7 +1361,8 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
         {
             for (var i = 0; i < NonZerosCount; i++)
             {
-                yield return new Tuple<int, Complex>(_nonZeroIndices[i]+1, _nonZeroValues[i]);
+                yield return new Tuple<int, Complex>(_storage.Indices[i] + 1, _storage.Values[i]);
+
             }
         }
 
