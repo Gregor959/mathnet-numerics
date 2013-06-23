@@ -3,7 +3,9 @@
 // http://numerics.mathdotnet.com
 // http://github.com/mathnet/mathnet-numerics
 // http://mathnetnumerics.codeplex.com
-// Copyright (c) 2009-2010 Math.NET
+//
+// Copyright (c) 2009-2013 Math.NET
+//
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation
 // files (the "Software"), to deal in the Software without
@@ -12,8 +14,10 @@
 // copies of the Software, and to permit persons to whom the
 // Software is furnished to do so, subject to the following
 // conditions:
+//
 // The above copyright notice and this permission notice shall be
 // included in all copies or substantial portions of the Software.
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
 // OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -43,12 +47,6 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
         /// <summary>
         /// Initializes a new instance of the Matrix class.
         /// </summary>
-        /// <param name="rows">
-        /// The number of rows.
-        /// </param>
-        /// <param name="columns">
-        /// The number of columns.
-        /// </param>
         protected Matrix(MatrixStorage<Complex> storage)
             : base(storage)
         {
@@ -95,7 +93,7 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
         /// <returns>The Frobenius norm of this matrix.</returns>
         public override Complex FrobeniusNorm()
         {
-            var transpose = Transpose();
+            var transpose = ConjugateTranspose();
             var aat = this * transpose;
 
             var norm = 0.0;
@@ -305,6 +303,21 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
                 for (var j = 0; j != ColumnCount; j++)
                 {
                     result.At(i, j, -At(i, j));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Complex conjugates each element of this matrix and place the results into the result matrix.
+        /// </summary>
+        /// <param name="result">The result of the conjugation.</param>
+        protected override void DoConjugate(Matrix<Complex> result)
+        {
+            for (var i = 0; i < RowCount; i++)
+            {
+                for (var j = 0; j != ColumnCount; j++)
+                {
+                    result.At(i, j, At(i, j).Conjugate());
                 }
             }
         }

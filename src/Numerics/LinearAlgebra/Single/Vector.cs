@@ -3,7 +3,9 @@
 // http://numerics.mathdotnet.com
 // http://github.com/mathnet/mathnet-numerics
 // http://mathnetnumerics.codeplex.com
-// Copyright (c) 2009-2010 Math.NET
+//
+// Copyright (c) 2009-2013 Math.NET
+//
 // Permission is hereby granted, free of charge, to any person
 // obtaining a copy of this software and associated documentation
 // files (the "Software"), to deal in the Software without
@@ -12,8 +14,10 @@
 // copies of the Software, and to permit persons to whom the
 // Software is furnished to do so, subject to the following
 // conditions:
+//
 // The above copyright notice and this permission notice shall be
 // included in all copies or substantial portions of the Software.
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 // EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
 // OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -27,9 +31,7 @@
 namespace MathNet.Numerics.LinearAlgebra.Single
 {
     using System;
-    using Distributions;
     using Generic;
-    using Properties;
     using Storage;
     using Threading;
 
@@ -40,7 +42,7 @@ namespace MathNet.Numerics.LinearAlgebra.Single
     public abstract class Vector : Vector<float>
     {
         /// <summary>
-        /// Initializes a new instance of the Vector class. 
+        /// Initializes a new instance of the Vector class.
         /// </summary>
         protected Vector(VectorStorage<float> storage)
             : base(storage)
@@ -144,6 +146,19 @@ namespace MathNet.Numerics.LinearAlgebra.Single
         }
 
         /// <summary>
+        /// Divides a scalar by each element of the vector and stores the result in the result vector.
+        /// </summary>
+        /// <param name="scalar">The scalar to divide.</param>
+        /// <param name="result">The vector to store the result of the division.</param>
+        protected override void DoDivideByThis(float scalar, Vector<float> result)
+        {
+            for (var index = 0; index < Count; index++)
+            {
+                result.At(index, scalar / At(index));
+            }
+        }
+
+        /// <summary>
         /// Pointwise multiplies this vector with another vector and stores the result into the result vector.
         /// </summary>
         /// <param name="other">The vector to pointwise multiply with this one.</param>
@@ -166,6 +181,19 @@ namespace MathNet.Numerics.LinearAlgebra.Single
             for (var index = 0; index < Count; index++)
             {
                 result.At(index, At(index) / other.At(index));
+            }
+        }
+
+        /// <summary>
+        /// Pointwise modulus this vector with another vector and stores the result into the result vector.
+        /// </summary>
+        /// <param name="other">The vector to pointwise modulus this one by.</param>
+        /// <param name="result">The result of the modulus.</param>
+        protected override void DoPointwiseModulus(Vector<float> other, Vector<float> result)
+        {
+            for (var index = 0; index < Count; index++)
+            {
+                result.At(index, At(index) % other.At(index));
             }
         }
 
@@ -197,9 +225,22 @@ namespace MathNet.Numerics.LinearAlgebra.Single
         /// <param name="result">A vector to store the results in.</param>
         protected override void DoModulus(float divisor, Vector<float> result)
         {
+            for (int i = 0; i < Count; i++)
+            {
+                result.At(i, At(i)%divisor);
+            }
+        }
+
+        /// <summary>
+        /// Computes the modulus for the given dividend for each element of the vector.
+        /// </summary>
+        /// <param name="scalar">The dividend to use.</param>
+        /// <param name="result">A vector to store the results in.</param>
+        protected override void DoModulusByThis(float scalar, Vector<float> result)
+        {
             for (var index = 0; index < Count; index++)
             {
-                result.At(index, At(index) % divisor);
+                result.At(index, scalar % At(index));
             }
         }
 
@@ -215,7 +256,7 @@ namespace MathNet.Numerics.LinearAlgebra.Single
         /// <summary>
         /// Returns the index of the absolute minimum element.
         /// </summary>
-        /// <returns>The index of absolute minimum element.</returns>   
+        /// <returns>The index of absolute minimum element.</returns>
         public override int AbsoluteMinimumIndex()
         {
             var index = 0;
@@ -245,7 +286,7 @@ namespace MathNet.Numerics.LinearAlgebra.Single
         /// <summary>
         /// Returns the index of the absolute maximum element.
         /// </summary>
-        /// <returns>The index of absolute maximum element.</returns>   
+        /// <returns>The index of absolute maximum element.</returns>
         public override int AbsoluteMaximumIndex()
         {
             var index = 0;
@@ -327,44 +368,35 @@ namespace MathNet.Numerics.LinearAlgebra.Single
         }
 
         /// <summary>
-        /// Conjugates vector and save result to <paramref name="target"/>
+        /// Conjugates vector and save result to <paramref name="result"/>
         /// </summary>
-        /// <param name="target">Target vector</param>
-        protected override void DoConjugate(Vector<float> target)
+        /// <param name="result">Target vector</param>
+        protected override void DoConjugate(Vector<float> result)
         {
-            if (ReferenceEquals(this, target))
+            if (ReferenceEquals(this, result))
             {
                 return;
             }
 
-            CopyTo(target);
+            CopyTo(result);
         }
 
         /// <summary>
-        /// Returns a negated vector.
+        /// Negates vector and saves result to <paramref name="result"/>
         /// </summary>
-        /// <returns>
-        /// The negated vector.
-        /// </returns>
-        /// <remarks>
-        /// Added as an alternative to the unary negation operator.
-        /// </remarks>
-        public override Vector<float> Negate()
+        /// <param name="result">Target vector</param>
+        protected override void DoNegate(Vector<float> result)
         {
-            var result = CreateVector(Count);
-
             for (var index = 0; index < Count; index++)
             {
                 result.At(index, -At(index));
             }
-
-            return result;
         }
 
         /// <summary>
         /// Returns the index of the absolute maximum element.
         /// </summary>
-        /// <returns>The index of absolute maximum element.</returns>          
+        /// <returns>The index of absolute maximum element.</returns>
         public override int MaximumIndex()
         {
             var index = 0;
@@ -385,7 +417,7 @@ namespace MathNet.Numerics.LinearAlgebra.Single
         /// <summary>
         /// Returns the index of the minimum element.
         /// </summary>
-        /// <returns>The index of minimum element.</returns>  
+        /// <returns>The index of minimum element.</returns>
         public override int MinimumIndex()
         {
             var index = 0;
