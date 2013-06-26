@@ -265,8 +265,8 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Complex32
         public virtual void CanSortMatrixOnColumns(string name)
         {
             var testMatrix = CreateMatrix(TestData2D[name]);
-            var w = new LinearAlgebra.Complex32.DenseVector(testMatrix.RowCount, 1);
-            var v = new LinearAlgebra.Complex32.DenseVector(testMatrix.ColumnCount, 1);
+            var w = LinearAlgebra.Complex32.DenseVector.Create(testMatrix.RowCount, j =>Complex32.One);
+            var v = LinearAlgebra.Complex32.DenseVector.Create(testMatrix.ColumnCount, j => Complex32.One);
 
             for (int i = 0; i < testMatrix.ColumnCount; i++)
             {
@@ -301,8 +301,8 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Complex32
         public virtual void CanSortMatrixOnRows(string name)
         {
             var testMatrix = CreateMatrix(TestData2D[name]);
-            var w = new LinearAlgebra.Complex32.DenseVector(testMatrix.RowCount, 1);
-            var v = new LinearAlgebra.Complex32.DenseVector(testMatrix.ColumnCount, 1);
+            var w = LinearAlgebra.Complex32.DenseVector.Create(testMatrix.RowCount, j =>Complex32.One);
+            var v = LinearAlgebra.Complex32.DenseVector.Create(testMatrix.ColumnCount, j => Complex32.One);
 
             for (int i = 0; i < testMatrix.RowCount; i++)
             {
@@ -434,8 +434,8 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Complex32
             Predicate<Complex32> match = elem => (elem.Real < 0.0f);
 
             //use these later to sum all entries of testMatrix pointwise multiplied with negativesMatrix
-            var w = new LinearAlgebra.Complex32.DenseVector(testMatrix.RowCount, 1);
-            var v = new LinearAlgebra.Complex32.DenseVector(testMatrix.ColumnCount, 1);
+            var w = LinearAlgebra.Complex32.DenseVector.Create(testMatrix.RowCount, a => Complex32.One);
+            var v = LinearAlgebra.Complex32.DenseVector.Create(testMatrix.ColumnCount, a => Complex32.One);
 
             var maskMatrixLtZero = testMatrix.FindMask(match);
             var negativeElements = testMatrix.EnumerateMask(maskMatrixLtZero);
@@ -532,13 +532,15 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Complex32
 
         }
 
+        
+
         /// <summary>
-        /// Test wether we can forma a new matrix which is a selection of Columns of a matrix. 
+        /// Test wether we can create another matrix from  a selection of Columns of a matrix .
         /// </summary>
-        /// <param name="rowIndex">the column Index to start from </param>
-        /// <param name="numberOfColumns">The number of columns</param>
-        /// <param name="name">The matrix name to test on.</param>
-        [TestCase(0, 2, "Singular3x3")]
+        /// <param name="ColumnIndex">the Column Index to start from </param>
+        /// <param name="numberOfColumns">The number of Columns</param>
+        /// <param name="name"></param>
+        [TestCase(0, 3, "Singular3x3")]
         [TestCase(1, 1, "Square3x3")]
         [TestCase(2, 1, "Square3x3")]
         [TestCase(0, 2, "Square3x3")]
@@ -551,27 +553,32 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Complex32
 
             var columnFirst = matrix.Column(columnIndex);
             var matrixCombined = columnFirst.ToColumnMatrix();
-
-            for (int i = 1; i < numberOfColumns; i++)
+            if (matrix as MathNet.Numerics.LinearAlgebra.Complex32.DiagonalMatrix == null)
             {
-                var columni = matrix.Column(columnIndex + i);
-                matrixCombined = matrixCombined.Append(columni.ToColumnMatrix());
+                for (int i = 1; i < numberOfColumns; i++)
+                {
+                    var columni = matrix.Column(columnIndex + i);
+                    matrixCombined = matrixCombined.Append(columni.ToColumnMatrix());
+                }
+                Assert.AreEqual(matrixCombined, columnsM);
             }
-
-            Assert.AreEqual(columnsM, matrixCombined);
-
+            else //for Diagonal Matrix 
+            {
+                var diag = matrix.Diagonal().SubVector(columnIndex, numberOfColumns);
+                var diagMatrix = MathNet.Numerics.LinearAlgebra.Complex32.DiagonalMatrix.OfDiagonal(numberOfColumns, numberOfColumns, diag.ToArray());
+                Assert.AreEqual(diagMatrix, columnsM);
+            }
 
 
         }
 
-
         /// <summary>
-        /// Test wether we can forma a new matrix which is a selection of Rows of a matrix 
+        /// Test wether we can select  Rows  of a matrix to another Matrix . 
         /// </summary>
-        /// <param name="rowIndex">the row Index to start from </param>
-        /// <param name="numberOfRows">The number of Rows</param>
+        /// <param name="ColumnIndex">the Column Index to start from </param>
+        /// <param name="numberOfColumns">The number of Columns</param>
         /// <param name="name"></param>
-        [TestCase(0, 2, "Singular3x3")]
+        [TestCase(0, 3, "Singular3x3")]
         [TestCase(1, 1, "Square3x3")]
         [TestCase(2, 1, "Square3x3")]
         [TestCase(0, 2, "Square3x3")]
@@ -584,81 +591,25 @@ namespace MathNet.Numerics.UnitTests.LinearAlgebraTests.Complex32
 
             var rowFirst = matrix.Row(rowIndex);
             var matrixCombined = rowFirst.ToRowMatrix();
-
-            for (int i = 1; i < numberOfRows; i++)
+            if (matrix as MathNet.Numerics.LinearAlgebra.Complex32.DiagonalMatrix == null)
             {
-                var rowi = matrix.Row(rowIndex + i);
-                matrixCombined = matrixCombined.Stack(rowi.ToRowMatrix());
+
+                for (int i = 1; i < numberOfRows; i++)
+                {
+                    var rowi = matrix.Row(rowIndex + i);
+                    matrixCombined = matrixCombined.Stack(rowi.ToRowMatrix());
+                }
+
+                Assert.AreEqual(rowsM, matrixCombined);
+            }
+            else //for Diagonal Matrix 
+            {
+                var diag = matrix.Diagonal().SubVector(rowIndex, numberOfRows);
+                var diagMatrix = MathNet.Numerics.LinearAlgebra.Complex32.DiagonalMatrix.OfDiagonal(numberOfRows, numberOfRows, diag.ToArray());
+                Assert.AreEqual(diagMatrix, rowsM);
             }
 
-            Assert.AreEqual(rowsM, matrixCombined);
-
         }
-
-
-
-        /// <summary>
-        /// Test wether we can set a selection of Rows of a matrix to another Matrix with the same numer of Columns.
-        /// </summary>
-        /// <param name="rowIndex">the row Index to start from </param>
-        /// <param name="numberOfRows">The number of Rows</param>
-        /// <param name="name"></param>
-        [TestCase(0, 2, "Singular3x3")]
-        [TestCase(1, 1, "Square3x3")]
-        [TestCase(2, 1, "Square3x3")]
-        [TestCase(0, 2, "Square3x3")]
-        [TestCase(0, 1, "Square3x3")]
-        [TestCase(1, 2, "Square3x3")]
-        public void CanSetRows(int rowIndex, int numberOfRows, string name)
-        {
-            var matrix = TestMatrices[name];
-            var rowsM = matrix.SelectRows(rowIndex, numberOfRows);
-
-            var matrixCopy = matrix.Clone();
-            //set certain rows to 0.
-            var zerosMatrix = new LinearAlgebra.Complex32.DenseMatrix(numberOfRows, matrixCopy.ColumnCount);
-            matrixCopy.SetRows(rowIndex, numberOfRows, zerosMatrix);
-            Assert.AreNotEqual(matrix, matrixCopy);
-            Assert.AreEqual(zerosMatrix, matrixCopy.SelectRows(rowIndex, numberOfRows));
-
-            //set rows back to original
-            matrixCopy.SetRows(rowIndex, numberOfRows, rowsM);
-            Assert.AreEqual(matrix, matrixCopy);
-
-        }
-
-
-        /// <summary>
-        /// Test wether we can set a selection of Columns of a matrix to another Matrix with the same numer of Columns.
-        /// </summary>
-        /// <param name="ColumnIndex">the Column Index to start from </param>
-        /// <param name="numberOfColumns">The number of Columns</param>
-        /// <param name="name"></param>
-        [TestCase(0, 3, "Singular3x3")]
-        [TestCase(1, 1, "Square3x3")]
-        [TestCase(2, 1, "Square3x3")]
-        [TestCase(0, 2, "Square3x3")]
-        [TestCase(0, 1, "Square3x3")]
-        [TestCase(1, 2, "Square3x3")]
-        public void CanSetColumns(int ColumnIndex, int numberOfColumns, string name)
-        {
-            var matrix = TestMatrices[name];
-            var ColumnsM = matrix.SelectColumns(ColumnIndex, numberOfColumns);
-
-            var matrixCopy = matrix.Clone();
-            //set certain Columns to 0.
-            var zerosMatrix = new LinearAlgebra.Complex32.DenseMatrix(matrixCopy.RowCount, numberOfColumns);
-            matrixCopy.SetColumns(ColumnIndex, numberOfColumns, zerosMatrix);
-            Assert.AreNotEqual(matrix, matrixCopy);
-            Assert.AreEqual(zerosMatrix, matrixCopy.SelectColumns(ColumnIndex, numberOfColumns));
-
-            //set Columns back to original
-            matrixCopy.SetColumns(ColumnIndex, numberOfColumns, ColumnsM);
-            Assert.AreEqual(matrix, matrixCopy);
-
-        }
-
-
 
 
 

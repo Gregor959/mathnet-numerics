@@ -1055,7 +1055,7 @@ namespace MathNet.Numerics.LinearAlgebra.Double
         /// <returns>The Matrix filled with 1.0</returns>
         public static Matrix Ones(int Rows, int Columns)
         {
-            return new DenseMatrix(Rows, Columns, 1.0);
+            return DenseMatrix.Create(Rows, Columns, (i,j)=>1.0);
         }
 
 

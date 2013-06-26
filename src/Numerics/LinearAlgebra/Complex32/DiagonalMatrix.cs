@@ -1140,45 +1140,58 @@ namespace MathNet.Numerics.LinearAlgebra.Complex32
         }
 
         /// <summary>
+        /// Creates a diagonal matrix which is a submatrix from this one selecting the Rows . 
+        /// </summary>
+        /// <param name="columnIndex">The index at which to start copying the Rows</param>
+        /// <param name="numberOfColumns">The number of Rows to copy </param>
+        /// <returns> The requested Matrix.</returns>
+        public override Matrix<Complex32> SelectRows(int rowIndex, int numberOfRows)
+        {
+            return SelectRows(Enumerable.Range(rowIndex, numberOfRows));
+        }
+
+        /// <summary>
+        /// Creates a diagonal matrix which is a submatrix from this one selecting the columns of a specific range. 
+        /// </summary>
+        /// <param name="columnIndex">The index at which to start copying the columns</param>
+        /// <param name="numberOfColumns">The number of columns to copy </param>
+        /// <returns> The requested Matrix.</returns>
+        public override Matrix<Complex32> SelectColumns(int columnIndex, int numberOfColumns)
+        {
+            return SelectColumns(Enumerable.Range(columnIndex, numberOfColumns));
+        }
+
+        /// <summary>
         /// Returns a matrix of selected Rows in the order of the given Enumerable.
         /// </summary>
-        /// <param name="keep">An Ienumberable, using 0 based indexing of the the selected Rows. </param>
+        /// <param name="keep">An IEnumerable, using 0 based indexing of the the selected Rows. </param>
         /// <returns> A matrix that contains the selected rows</returns>
         public override Matrix<Complex32> SelectRows(IEnumerable<int> keep)
         {
-            IEnumerable<Tuple<int, Vector<Complex32>>> vRows = RowEnumerator(0, RowCount);
-
-            //create an index field on keep because we want to sort the rows the same as in the Enumerator keep
-            var keepAndIndex = keep.Select((item, index) => new { Row = item, Index = index });
-
-            var selected = from keeps in keepAndIndex
-                           from elem in vRows
-                           where (elem.Item1 == keeps.Row)
-                           orderby keeps.Index
-                           select elem.Item2;
-
-            return Matrix<Complex32>.CreateFromRows(selected.ToList());
+            return SelectColumns(keep);
         }
         
         /// <summary>
         /// Returns a matrix of selected Columns in the order of the given Enumerable.
         /// </summary>
-        /// <param name="keep">An Ienumberable, using 0 based indexing of the the selected Columnss. </param>
+        /// <param name="keep">An IEnumerable, using 0 based indexing of the the selected Columnss. </param>
         /// <returns> A matrix that contains the selected Columns</returns>
         public override Matrix<Complex32> SelectColumns(IEnumerable<int> keep)
         {
-            IEnumerable<Tuple<int, Vector<Complex32>>> vColumns = ColumnEnumerator(0, ColumnCount);
+            var keepList = keep.ToList();
+            var target = CreateMatrix(keepList.Count, keepList.Count);
 
-            //create an index field on keep because we want to sort the Columns the same as in the Enumerator keep
-            var keepAndIndex = keep.Select((item, index) => new { Column = item, Index = index });
-
-            var selected = from keeps in keepAndIndex
-                           from elem in vColumns
-                           where (elem.Item1 == keeps.Column)
-                           orderby keeps.Index
-                           select elem.Item2;
-
-            return Matrix<Complex32>.CreateFromColumns(selected.ToList());
+            int targetColumn = 0;
+            foreach (int c in keepList)
+            {
+                if (c >= ColumnCount || c < 0)
+                {
+                    throw new IndexOutOfRangeException("Diagonal Matrix.SelectColumns/SelectRows index out of range.");
+                }
+                target.At(targetColumn, targetColumn, this.At(c, c));
+                targetColumn++;
+            }
+            return target;
         }
 
 

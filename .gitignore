@@ -21,3 +21,5 @@ UpgradeLog.htm
 *.vsdoc
 *.XML
 *.so
+*.orig
+.gitignore

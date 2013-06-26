@@ -1158,46 +1158,62 @@ namespace MathNet.Numerics.LinearAlgebra.Single
             throw new InvalidOperationException("Shuffling Rows in diagonal matrix are not allowed");
         }
 
+
         /// <summary>
-        /// Returns a matrix of selected Rows in the order of the given Enumerable.
+        /// Creates a diagonal matrix which is a submatrix from this one selecting the Rows . 
         /// </summary>
-        /// <param name="keep">An Ienumberable, using 0 based indexing of the the selected Rows. </param>
-        /// <returns> A matrix that contains the selected rows</returns>
-        public override Matrix<float> SelectRows(IEnumerable<int> keep)
+        /// <param name="columnIndex">The index at which to start copying the Rows</param>
+        /// <param name="numberOfColumns">The number of Rows to copy </param>
+        /// <returns> The requested Matrix.</returns>
+        public override Matrix<float> SelectRows(int rowIndex, int numberOfRows)
         {
-            IEnumerable<Tuple<int, Vector<float>>> vRows = RowEnumerator(0, RowCount);
-
-            //create an index field on keep because we want to sort the rows the same as in the Enumerator keep
-            var keepAndIndex = keep.Select((item, index) => new { Row = item, Index = index });
-
-            var selected = from keeps in keepAndIndex
-                           from elem in vRows
-                           where (elem.Item1 == keeps.Row)
-                           orderby keeps.Index
-                           select elem.Item2;
-
-            return Matrix<float>.CreateFromRows(selected.ToList());
+            return SelectRows(Enumerable.Range(rowIndex, numberOfRows));
         }
 
         /// <summary>
-        /// Returns a matrix of selected Columns in the order of the given Enumerable.
+        /// Creates a diagonal matrix which is a submatrix from this one selecting the columns of a specific range. 
         /// </summary>
-        /// <param name="keep">An Ienumberable, using 0 based indexing of the the selected Columnss. </param>
+        /// <param name="columnIndex">The index at which to start copying the columns</param>
+        /// <param name="numberOfColumns">The number of columns to copy </param>
+        /// <returns> The requested Matrix.</returns>
+        public override  Matrix<float> SelectColumns(int columnIndex, int numberOfColumns)
+        {
+            return SelectColumns( Enumerable.Range(columnIndex,numberOfColumns));
+        }
+
+
+        /// <summary>
+        /// Returns a diagonal matrix of selected Rows in the order of the given Enumerable.
+        /// </summary>
+        /// <param name="keep">An IEnumerable, using 0 based indexing of the the selected Rows. </param>
+        /// <returns> A matrix that contains the selected rows</returns>
+        public override Matrix<float> SelectRows(IEnumerable<int> keep)
+        {
+            //use the fact that it is a Diagonal Matrix.
+            return SelectColumns(keep);    
+        }
+
+        /// <summary>
+        /// Returns a diagonal matrix of selected Columns in the order of the given Enumerable.
+        /// </summary>
+        /// <param name="keep">An IEnumerable, using 0 based indexing of the the selected Columnss. </param>
         /// <returns> A matrix that contains the selected Columns</returns>
         public override Matrix<float> SelectColumns(IEnumerable<int> keep)
         {
-            IEnumerable<Tuple<int, Vector<float>>> vColumns = ColumnEnumerator(0, ColumnCount);
+            var keepList = keep.ToList();
+            var target = CreateMatrix(keepList.Count, keepList.Count);
 
-            //create an index field on keep because we want to sort the Columns the same as in the Enumerator keep
-            var keepAndIndex = keep.Select((item, index) => new { Column = item, Index = index });
-
-            var selected = from keeps in keepAndIndex
-                           from elem in vColumns
-                           where (elem.Item1 == keeps.Column)
-                           orderby keeps.Index
-                           select elem.Item2;
-
-            return Matrix<float>.CreateFromColumns(selected.ToList());
+            int targetColumn = 0;
+            foreach (int c in keepList)
+            {
+                if (c >= ColumnCount || c < 0)
+                {
+                    throw new IndexOutOfRangeException("Diagonal Matrix.SelectColumns/SelectRows index out of range.");
+                }
+                target.At(targetColumn, targetColumn, this.At(c, c));
+                targetColumn++;
+            }
+            return target;        
         }
 
 

@@ -2016,7 +2016,7 @@ namespace MathNet.Numerics.LinearAlgebra.Generic
         /// <summary>
         /// Returns a matrix of selected Rows in the order of the given Enumerable.
         /// </summary>
-        /// <param name="keep">An Ienumberable, using 0 based indexing of the the selected Rows. </param>
+        /// <param name="keep">An IEnumerable, using 0 based indexing of the the selected Rows. </param>
         /// <returns> A matrix that contains the selected rows</returns>
         public virtual Matrix<T> SelectRows(IEnumerable<int> keep)
         {
@@ -2041,7 +2041,7 @@ namespace MathNet.Numerics.LinearAlgebra.Generic
         /// <summary>
         /// Returns a matrix of selected Columns in the order of the given Enumerable.
         /// </summary>
-        /// <param name="keep">An Ienumberable, using 0 based indexing of the the selected Columnss. </param>
+        /// <param name="keep">An IEnumerable, using 0 based indexing of the the selected Columnss. </param>
         /// <returns> A matrix that contains the selected Columns</returns>
         public virtual Matrix<T> SelectColumns(IEnumerable<int> keep)
         {
@@ -2541,7 +2541,7 @@ namespace MathNet.Numerics.LinearAlgebra.Generic
         /// <summary>
         /// Returns a matrix of selected Rows in the order of the given Enumerable.
         /// </summary>
-        /// <param name="keep">An Ienumberable, using 1 based indexing of the the selected Rows. </param>
+        /// <param name="keep">An IEnumerable, using 1 based indexing of the the selected Rows. </param>
         /// <returns> A matrix that contains the selected rows</returns>
         public Matrix<T> SelectRowsI(IEnumerable<int> keep)
         {
@@ -2564,7 +2564,7 @@ namespace MathNet.Numerics.LinearAlgebra.Generic
         /// <summary>
         /// Returns a matrix of selected Columns in the order of the given Enumerable
         /// </summary>
-        /// <param name="keep">An Ienumberable, using 1 based indexing of the the selected Columnss. </param>
+        /// <param name="keep">An IEnumerable, using 1 based indexing of the the selected Columnss. </param>
         /// <returns> A matrix that contains the selected Columns</returns>
         public Matrix<T> SelectColumnsI(IEnumerable<int> keep)
         {

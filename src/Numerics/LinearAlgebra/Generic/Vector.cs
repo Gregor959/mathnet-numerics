@@ -1654,46 +1654,7 @@ namespace MathNet.Numerics.LinearAlgebra.Generic
         }
 
         
-        /// <summary>
-        /// Updates specified elements of the Vector.
-        /// </summary>
-        /// <param name="index">The first element to begin copying from.</param>
-        /// <param name="length">The number of elements to copy.</param>
-        /// <param name="vectorToCopyFrom">The vector to copy from .</param>
-        /// <exception cref="ArgumentOutOfRangeException"><list><item>If <paramref name="index"/> is not positive or
-        /// greater than or equal to the size of the vector.</item>
-        /// <item>If <paramref name="index"/> + <paramref name="length"/> is greater than or equal to the size of the vector.</item>
-        /// </list></exception>
-        /// <exception cref="ArgumentException">If <paramref name="length"/> is not positive.</exception>
-        public virtual void SetSubVector(int index, int length, Vector<T> vectorToCopyFrom)
-        {
-            if (index < 0 || index >= Count)
-            {
-                throw new ArgumentOutOfRangeException("index");
-            }
-
-            if (length <= 0)
-            {
-                throw new ArgumentOutOfRangeException("length");
-            }
-
-            if (index + length > Count)
-            {
-                throw new ArgumentOutOfRangeException("index");
-            }
-
-            if (length > vectorToCopyFrom.Count)
-            {
-                throw new ArgumentOutOfRangeException("length, length greater than length of vectorToCopyFrom.");
-            }
-
-
-            CommonParallel.For(
-                index,
-                index + length,
-                i => this.At(i,vectorToCopyFrom.At(i-index)));
-        }
-
+        
 
         /// <summary>
         /// Updates specified elements of the Vector with the other vector's elements.

@@ -924,7 +924,7 @@ namespace MathNet.Numerics.LinearAlgebra.Complex
         /// <returns>The Vector filled with 1.0</returns>
         public static Vector Ones(int size)
         {
-            return new DenseVector(size, 1.0);
+            return DenseVector.Create(size, x =>Complex.One);
         }
 
     }

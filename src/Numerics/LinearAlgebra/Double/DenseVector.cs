@@ -995,7 +995,7 @@ namespace MathNet.Numerics.LinearAlgebra.Double
         /// <returns>The Vector filled with 1.0</returns>
         public static Vector Ones(int size)
         {
-            return new DenseVector(size, 1.0);
+            return DenseVector.Create(size, i=>1.0);
         }
 
         

@@ -980,7 +980,7 @@ namespace MathNet.Numerics.LinearAlgebra.Single
         /// <returns>The Matrix filled with 1.0</returns>
         public static Matrix Ones(int Rows, int Columns)
         {
-            return new DenseMatrix(Rows, Columns, 1.0f);
+            return DenseMatrix.Create(Rows, Columns, (a,b) =>1.0f);
         }
 
 
